@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>NonameGesture</title>
+	<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+	<link rel="stylesheet" href="css/demo.css">
+</head>
+
+<body>
+	<!-- tap -->
+	<div class="tap" data-count="0">单击次数 0</div>
+
+	<!-- doubleTap -->
+	<div class="double-tap" data-count="0">双击次数 0</div>
+
+	<!-- longTap -->
+	<div class="long-tap" data-count="0">长按呼出菜单</div>
+	<div class="long-tap-mask" style="display: none;">
+		<ul class="long-tap-menu-list">
+			<li class="long-tap-menu-item">菜单一</li>
+			<li class="long-tap-menu-item">菜单二</li>
+			<li class="long-tap-menu-item">菜单三</li>
+			<li class="long-tap-menu-item">菜单四</li>
+			<li class="long-tap-menu-item">取消</li>
+		</ul>
+	</div>
+
+	<!-- swipe and move -->
+	<div class="swipe">
+		<div class="swipe-item">
+			<div class="box">
+				<img class="avatar" src="images/image.jpg" alt="">
+				<div class="content">
+					<p class="name">白月魁</p>
+					<p class="text">再拖下去，来交租的会越来越多，你们躲远点</p>
+				</div>
+			</div>
+			<button class="btn cancel" type="button">取消</button>
+			<button class="btn delete" type="button">删除</button>
+		</div>
+	</div>
+
+	<!-- move -->
+	<button class="hover" type="button"></button>
+
+
+
+	<script src="js/noname-gesture.js"></script>
+	<script>
+		// tap
+		nonameGesture.init(document.querySelector('div.tap'), {
+			tap: function () {
+				console.log('tap');
+			},
+			longTap: function () {
+				console.log('longTap');
+			},
+			doubleTap: function () {
+				console.log('doubleTap');
+			}
+		});
+
+
+		// hover button
+		/* nonameGesture.init(document.querySelector('button.hover'), {
+			move: function (e) {
+				console.log(e);
+			}
+		}); */
+	</script>
+</body>
+
+</html>

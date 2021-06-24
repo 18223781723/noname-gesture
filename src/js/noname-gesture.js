@@ -1,21 +1,135 @@
+const nonameGesture = {
+	element: null,
+	start: { x: 0, y: 0 },
+	start2: {
+		x: 0, y: 0
+	},
+	step: {
+		x: 0, y: 0
+	},
+	distance: {
+		x: 0, y: 0
+	},
+	lastDistance: {
+		x: 0, y: 0
+	},
+	lastMove: {},
+	lastCenter: {},
+	direction: '',
+	tapCount: 0,
+	tapTimer: null,
+	longTapTimer: null,
+	options: null,
+	/**
+	 * 初始化执行
+	 * @param {HTMLElement} el 元素
+	 * @param {object} options 配置项
+	 */
+	init: function (el, options) {
+		this.element = el;
+		this.options = options;
+		this.bindEvent();
+	},
+	/**
+	 * 处理touchstart
+	 * @param {TouchEvent} e
+	 */
+	handleTouchStart: function (e) {
+		this.start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+		this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+		if (e.touches.length === 1) {
+			this.tapCount++;
+			clearTimeout(this.tapTimer);
+			if (this.tapCount === 1) {
+				this.longTapTimer = setTimeout(() => {
+					this.tapCount = 0;
+					if (this.options.longTap) this.options.longTap();
+				}, 600);
+			}
 
-function NonameGesture(element, options) {
-	this.x = this.y = 0;
-	this.x2 = this.y2 = 0;
-	this.longTapTimer = null;
-}
-NonameGesture.prototype.init = function () {
-
-}
-NonameGesture.prototype.handleTouchStart = function () {
-
-}
-NonameGesture.prototype.handleTouchMove = function () {
-
-}
-NonameGesture.prototype.handleTouchEnd = function () {
-
-}
-NonameGesture.prototype.handleTouchCancel = function () {
-
+		} else if (e.touches.length === 2) {
+			this.tapCount = 0;
+			clearTimeout(this.longTapTimer);
+		}
+	},
+	/**
+	 * 处理touchmove
+	 * @param {TouchEvent} e
+	 */
+	handleTouchMove: function (e) {
+		const current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+		if (e.touches.length === 1) {
+			this.step = { x: current.x - this.lastMove.x, y: current.y - this.lastMove.y };
+			this.lastMove = { x: current.x, y: current.y };
+			this.distance = { x: current.x - this.start.x + this.lastDistance.x, y: current.y - this.start.y + this.lastDistance.y };
+			// 由于手指目标相对较大，偏移量<10认定为没有移动
+			if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
+				this.tapCount = 0;
+				clearTimeout(this.longTapTimer);
+				if (this.options.move) {
+					this.options.move({ distance: { x: this.distance.x, y: this.distance.y }, step: { x: this.step.x, y: this.step.y } });
+				}
+			}
+		} else {
+			e.preventDefault();
+		}
+	},
+	/**
+	 * 处理touchend
+	 * @param {TouchEvent} e
+	 */
+	handleTouchEnd: function (e) {
+		e.preventDefault();
+		if (e.touches.length === 0) {
+			clearTimeout(this.longTapTimer);
+			if (this.tapCount === 1) {
+				this.tapTimer = setTimeout(() => {
+					this.tapCount = 0;
+					if (this.options.tap) this.options.tap();
+				}, 300);
+			} else if (this.tapCount > 1) {
+				this.tapCount = 0;
+				if (this.options.doubleTap) this.options.doubleTap();
+			}
+		} else if (e.touches.length === 1) {
+			this.start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+			this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+			this.lastDistance = { x: this.distance.x, y: this.distance.y };
+		}
+	},
+	/**
+	 * 处理touchcancel
+	 * @param {TouchEvent} e
+	 */
+	handleTouchCancel: function (e) {
+		this.tapCount = 0;
+	},
+	/**
+	 * 绑定事件
+	 */
+	bindEvent: function () {
+		this.handleTouchStart = this.handleTouchStart.bind(this);
+		this.handleTouchMove = this.handleTouchMove.bind(this);
+		this.handleTouchEnd = this.handleTouchEnd.bind(this);
+		this.handleTouchCancel = this.handleTouchCancel.bind(this);
+		this.element.addEventListener('touchstart', this.handleTouchStart);
+		this.element.addEventListener('touchmove', this.handleTouchMove);
+		this.element.addEventListener('touchend', this.handleTouchEnd);
+		this.element.addEventListener('touchcancel', this.handleTouchCancel);
+	},
+	/**
+	 * 解绑事件
+	 */
+	unbindEvent: function () {
+		this.element.removeEventListener('touchstart', this.handleTouchStart);
+		this.element.removeEventListener('touchmove', this.handleTouchMove);
+		this.element.removeEventListener('touchend', this.handleTouchEnd);
+		this.element.removeEventListener('touchcancel', this.handleTouchCancel);
+	},
+	/**
+	 * 销毁
+	 */
+	destroy: function () {
+		this.unbindEvent();
+	}
 }
