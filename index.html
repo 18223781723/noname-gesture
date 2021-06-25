@@ -8,13 +8,167 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>NonameGesture</title>
 	<link rel="icon" type="image/x-icon" href="src/images/favicon.ico">
-	<link rel="stylesheet" href="src/css/noname-gesture.css">
+	<link rel="stylesheet" href="src/css/demo.css">
 </head>
 
 <body>
-	<div class="container">
-		<img src="src/images/image.jpg" alt="">
+	<!-- tap -->
+	<div class="tap" data-count="0">单击次数 0</div>
+
+	<!-- doubleTap -->
+	<div class="double-tap" data-count="0">双击次数 0</div>
+
+	<!-- longTap -->
+	<div class="long-tap" data-count="0">长按呼出菜单</div>
+	<div class="long-tap-mask hide">
+		<ul class="long-tap-menu-list">
+			<li class="long-tap-menu-item">菜单一</li>
+			<li class="long-tap-menu-item">菜单二</li>
+			<li class="long-tap-menu-item">菜单三</li>
+			<li class="long-tap-menu-item">菜单四</li>
+			<li class="long-tap-menu-item">取消</li>
+		</ul>
 	</div>
+
+	<!-- swipe and move -->
+	<div class="swipe">
+		<div class="swipe-item">
+			<div class="box">
+				<img class="avatar" src="src/images/image.jpg" alt="">
+				<div class="content">
+					<p class="name">白月魁</p>
+					<p class="text">再拖下去，来交租的会越来越多，你们躲远点</p>
+				</div>
+			</div>
+			<button class="btn cancel" type="button">取消</button>
+			<button class="btn delete" type="button">删除</button>
+		</div>
+	</div>
+
+	<!-- move -->
+	<button class="hover" type="button"></button>
+
+
+
+	<script src="dist/noname-gesture.js"></script>
+	<script src="src/js/noname-gesture.js"></script>
+	<script>
+		// tap
+		const tapDom = document.querySelector('div.tap');
+		let tapCount = 0;
+		new NonameGesture(tapDom, {
+			tap: function () {
+				tapCount++;
+				tapDom.innerHTML = '单击次数 ' + tapCount;
+			}
+		});
+
+		// doubleTap
+		const doubleTapDom = document.querySelector('div.double-tap');
+		let doubleTapCount = 0;
+		new NonameGesture(doubleTapDom, {
+			doubleTap: function () {
+				doubleTapCount++;
+				doubleTapDom.innerHTML = '双击次数 ' + doubleTapCount;
+			}
+		});
+
+		// longTap
+		const longTapDom = document.querySelector('div.long-tap');
+		const maskDom = document.querySelector('div.long-tap-mask');
+		const menuDom = document.querySelector('ul.long-tap-menu-list');
+		new NonameGesture(longTapDom, {
+			longTap: function () {
+				maskDom.classList.remove('hide');
+				maskDom.classList.add('animate-fade-in');
+				menuDom.classList.add('animate-slide-up');
+			}
+		});
+		new NonameGesture(maskDom, {
+			tap: function () {
+				maskDom.classList.add('animate-fade-out');
+				maskDom.classList.remove('animate-fade-in');
+				menuDom.classList.add('animate-slide-down');
+				menuDom.classList.remove('animate-slide-up');
+			}
+		});
+		maskDom.addEventListener('animationend', function () {
+			if (this.classList.contains('animate-fade-out')) {
+				maskDom.classList.add('hide');
+				maskDom.classList.remove('animate-fade-out');
+				menuDom.classList.remove('animate-slide-down');
+			}
+		});
+
+		// move
+		const moveDom = document.querySelector('button.hover')
+		let moveX = 0;
+		let moveY = window.innerHeight - 120;
+		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
+		new NonameGesture(moveDom, {
+			move: function (e) {
+				moveX += e.step.x;
+				moveY += e.step.y;
+				moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
+			}
+		});
+
+		// swipe
+		const swipeDom = document.querySelector('div.swipe-item');
+		let from, to, swipeX = 0;
+		swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
+		const swipeGesture = new NonameGesture(swipeDom, {
+			move: function (e) {
+				swipeX += e.step.x;
+				if (swipeX > 0) {
+					swipeX = 0
+				} else if (swipeX < -140) {
+					swipeX = -140;
+				}
+				from = swipeX;
+				swipeDom.style.transition = 'none';
+				swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
+			},
+			swipe: function (e) {
+				if (e === 'left') {
+					swipeX = -140;
+				} else if (e === 'right') {
+					swipeX = 0;
+				}
+				to = swipeX;
+				swipeDom.style.transition = 'transform .3s ease';
+				swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
+				/* swipeGesture.raf(function (time) {
+					let x = swipeGesture.easeOut(from, to, time, 300);
+					swipeDom.style.transform = 'translate3d(' + x + 'px, 0px , 0px)';
+				}); */
+			},
+			touchEnd: function (e, data) {
+				if (!data.hasTriggerSwipe) {
+					if (Math.abs(data.distance.x) > 50) {
+						if (data.distance.x < 0) {
+							swipeX = -140
+						} else {
+							swipeX = 0;
+						}
+					} else {
+						if (data.distance.x < 0) {
+							swipeX = 0
+						} else {
+							swipeX = -140;
+						}
+					}
+					to = swipeX;
+					swipeDom.style.transition = 'transform .3s ease';
+					swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
+				}
+			}
+		});
+		function swipeAnimate() {
+
+		}
+
+	</script>
 </body>
 
 </html>
