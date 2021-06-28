@@ -30,7 +30,7 @@
 		</ul>
 	</div>
 
-	<!-- swipe and move -->
+	<!-- swipe -->
 	<div class="swipe">
 		<div class="swipe-item">
 			<div class="box">
@@ -48,7 +48,16 @@
 	<!-- move -->
 	<button class="hover" type="button"></button>
 
+	<!-- rotate -->
+	<div class="rotate">
+		<img src="src/images/image.jpg" alt="">
+	</div>
 
+	<!-- pinch -->
+	<div class="pinch">
+		<img src="src/images/image.jpg" alt="">
+	</div>
+	<div class="dot"></div>
 
 	<script src="dist/noname-gesture.js"></script>
 	<script src="src/js/noname-gesture.js"></script>
@@ -103,7 +112,7 @@
 		// move
 		const moveDom = document.querySelector('button.hover')
 		let moveX = 0;
-		let moveY = window.innerHeight - 120;
+		let moveY = window.innerHeight / 2;
 		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
 		new NonameGesture(moveDom, {
 			move: function (e) {
@@ -164,10 +173,31 @@
 				}
 			}
 		});
-		function swipeAnimate() {
 
-		}
+		// rotate
+		const rotateDom = document.querySelector('.rotate img');
+		let angle = 0;
+		new NonameGesture(rotateDom, {
+			rotate: function (totalAngle, stepAngle) {
+				angle += stepAngle;
+				rotateDom.style.transform = 'rotate(' + angle + 'deg)';
+			}
+		});
 
+		// pinch
+		const pinchDom = document.querySelector('.pinch img');
+		const pinchData = { x: 0, y: 0, scale: 1 };
+		const pinchGesture = new NonameGesture(pinchDom, {
+			pinch: function (e) {
+				pinchData.scale += e.stepZoom;
+				pinchData.x = result.width * (e.totalZoom - 1) / 2;
+				pinchDom.style.transform = 'translate3d(' + pinchData.x + 'px, ' + pinchData.y + 'px, 0) scale(' + pinchData.scale + ')';
+			}
+		});
+		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);
+		pinchDom.style.width = result.width + 'px';
+		pinchDom.style.height = result.height + 'px';
+		pinchDom.style.transform = 'translate3d(0px, 45px, 0px) scale(1)';
 	</script>
 </body>
 
