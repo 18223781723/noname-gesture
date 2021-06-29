@@ -12,66 +12,37 @@
 </head>
 
 <body>
-	<!-- tap -->
-	<div class="tap" data-count="0">单击次数 0</div>
-
-	<!-- doubleTap -->
-	<div class="double-tap" data-count="0">双击次数 0</div>
-
-	<!-- longTap -->
-	<div class="long-tap" data-count="0">长按呼出菜单</div>
-	<div class="long-tap-mask" style="display: none;">
-		<ul class="long-tap-menu-list">
-			<li class="long-tap-menu-item">菜单一</li>
-			<li class="long-tap-menu-item">菜单二</li>
-			<li class="long-tap-menu-item">菜单三</li>
-			<li class="long-tap-menu-item">菜单四</li>
-			<li class="long-tap-menu-item">取消</li>
-		</ul>
+	<div class="container">
+		<img src="images/image.jpg" alt="">
 	</div>
 
-	<!-- swipe and move -->
-	<div class="swipe">
-		<div class="swipe-item">
-			<div class="box">
-				<img class="avatar" src="images/image.jpg" alt="">
-				<div class="content">
-					<p class="name">白月魁</p>
-					<p class="text">再拖下去，来交租的会越来越多，你们躲远点</p>
-				</div>
-			</div>
-			<button class="btn cancel" type="button">取消</button>
-			<button class="btn delete" type="button">删除</button>
-		</div>
-	</div>
-
-	<!-- move -->
-	<button class="hover" type="button"></button>
-
-
-
-	<script src="js/noname-gesture.js"></script>
+	<script src="../dist/noname-gesture.js"></script>
 	<script>
-		// tap
-		nonameGesture.init(document.querySelector('div.tap'), {
-			tap: function () {
-				console.log('tap');
-			},
-			longTap: function () {
-				console.log('longTap');
-			},
-			doubleTap: function () {
-				console.log('doubleTap');
+		// pinch
+		const pinchDom = document.querySelector('div.container img');
+		const pinchData = { x: 0, y: 45, scale: 1 };
+		let lastScale = 1;
+		const pinchGesture = new NonameGesture(pinchDom, {
+			pinch: function (e) {
+				pinchData.scale += e.stepZoom;
+				// e.stepZoom = pinchData.scale / lastScale;
+				// pinchData.x -= (e.stepZoom - 1) * (e.centerX - pinchData.x) - (e.stepZoom - 1) * result.width * 0.2 - e.stepCenterX;
+				// pinchData.y -= (e.stepZoom - 1) * (e.centerY - pinchData.y) - (e.stepZoom - 1) * result.height * 0.8 - e.stepCenterY;
+				/* pinchData.x -= (e.stepZoom - 1) * (e.centerX - pinchData.x) - (e.stepZoom - 1) * result.width * 0.2 - e.stepCenterX;
+				pinchData.y -= (e.stepZoom - 1) * (e.centerY - pinchData.y) - (e.stepZoom - 1) * result.height * 0.8 - e.stepCenterY; */
+				/* pinchData.x -= (e.stepZoom - 1) * (e.centerX - pinchData.x) - e.stepCenterX;
+				pinchData.y -= (e.stepZoom - 1) * (e.centerY - pinchData.y) - e.stepCenterY; */
+				pinchDom.style.transform = 'translate3d(' + pinchData.x + 'px, ' + pinchData.y + 'px, 0px) scale(' + pinchData.scale + ')';
+				// lastScale = pinchData.scale;
+				e.scale=pinchData.scale;
 			}
 		});
-
-
-		// hover button
-		/* nonameGesture.init(document.querySelector('button.hover'), {
-			move: function (e) {
-				console.log(e);
-			}
-		}); */
+		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);
+		pinchDom.style.width = result.width + 'px';
+		pinchDom.style.height = result.height + 'px';
+		pinchData.x = (window.innerWidth - result.width) * 0.5;
+		pinchData.y = (window.innerHeight - result.height) * 0.5;
+		pinchDom.style.transform = 'translate3d(' + pinchData.x + 'px, ' + pinchData.y + 'px, 0px) scale(1)';
 	</script>
 </body>
 

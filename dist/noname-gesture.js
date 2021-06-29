@@ -6,8 +6,8 @@ function NonameGesture(element, options) {
 	this.step = { x: 0, y: 0 };
 	this.distance = { x: 0, y: 0 };
 	this.lastDistance = { x: 0, y: 0 };
-	this.lastMove = {};
-	this.lastCenter = {};
+	this.lastMove = { x: 0, y: 0 };
+	this.lastCenter = { x: 0, y: 0 };
 	this.lastAngle = 0;
 	this.lastZoom = 1;
 	this.direction = '';
@@ -44,16 +44,12 @@ NonameGesture.prototype.handleTouchStart = function (e) {
 		this.point2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
 		this.lastAngle = 0;
 		this.lastZoom = 1;
+		this.lastCenter = null;
 	}
 	if (this.options.touchStart) this.options.touchStart(e);
 }
 NonameGesture.prototype.handleTouchMove = function (e) {
-	e.preventDefault();
-	this.point2 = { x: 15, y: 620 };
 	const point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-	const point2 = { x: 15, y: 620 };
-	this.handlePinch(point, point2);
-	/* const point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 	if (e.touches.length === 1) {
 		this.step = { x: point.x - this.lastMove.x, y: point.y - this.lastMove.y };
 		this.lastMove = { x: point.x, y: point.y };
@@ -78,7 +74,7 @@ NonameGesture.prototype.handleTouchMove = function (e) {
 		// pinch
 		this.handlePinch(point, point2);
 	}
-	if (this.options.touchMove) this.options.touchMove(e); */
+	if (this.options.touchMove) this.options.touchMove(e);
 	e.preventDefault();
 }
 NonameGesture.prototype.handleTouchEnd = function (e) {
@@ -136,13 +132,23 @@ NonameGesture.prototype.handleTouchCancel = function (e) {
 NonameGesture.prototype.handlePinch = function (point, point2) {
 	let totalZoom = this.getDistance(point, point2) / this.getDistance(this.point, this.point2);
 	let stepZoom = totalZoom - this.lastZoom;
-	this.lastZoom = totalZoom;
+	
+	let center = this.getCenter(point, point2);
+	if (this.lastCenter === null) this.lastCenter = { x: center.x, y: center.y };
+	let stepCenter = { x: center.x - this.lastCenter.x, y: center.y - this.lastCenter.y };
+	this.lastCenter = center;
 	if (this.options.pinch) this.options.pinch({
-		x: 0,
-		y: 0,
+		x: stepZoom * stepCenter.x,
+		y: stepZoom * stepCenter.y,
 		totalZoom: totalZoom,
-		stepZoom: stepZoom
+		stepZoom: stepZoom,
+		centerX: center.x,
+		centerY: center.y,
+		stepCenterX: stepCenter.x,
+		stepCenterY: stepCenter.y,
+		lastZoom:this.lastZoom
 	});
+	this.lastZoom = totalZoom;
 }
 NonameGesture.prototype.bindEvent = function () {
 	this.handleTouchStart = this.handleTouchStart.bind(this);

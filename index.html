@@ -8,7 +8,7 @@
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<title>NonameGesture</title>
 	<link rel="icon" type="image/x-icon" href="src/images/favicon.ico">
-	<link rel="stylesheet" href="src/css/demo.css">
+	<link rel="stylesheet" href="src/css/index.css">
 </head>
 
 <body>
@@ -57,9 +57,10 @@
 	<div class="pinch">
 		<img src="src/images/image.jpg" alt="">
 	</div>
-	<div class="dot"></div>
 
-	<script src="dist/noname-gesture.js"></script>
+	<a href="src/demo.html">demo</a>
+
+	<!-- <script src="dist/noname-gesture.js"></script> -->
 	<script src="src/js/noname-gesture.js"></script>
 	<script>
 		// tap
@@ -115,6 +116,9 @@
 		let moveY = window.innerHeight / 2;
 		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
 		new NonameGesture(moveDom, {
+			tap: function () {
+				window.location.href = 'https://github.com/18223781723/noname-gesture';
+			},
 			move: function (e) {
 				moveX += e.step.x;
 				moveY += e.step.y;
@@ -186,12 +190,11 @@
 
 		// pinch
 		const pinchDom = document.querySelector('.pinch img');
-		const pinchData = { x: 0, y: 0, scale: 1 };
+		let pinchScale = 1;
 		const pinchGesture = new NonameGesture(pinchDom, {
 			pinch: function (e) {
-				pinchData.scale += e.stepZoom;
-				pinchData.x = result.width * (e.totalZoom - 1) / 2;
-				pinchDom.style.transform = 'translate3d(' + pinchData.x + 'px, ' + pinchData.y + 'px, 0) scale(' + pinchData.scale + ')';
+				pinchScale *= e.stepZoom;
+				pinchDom.style.transform = 'translate3d(0px, 45px, 0) scale(' + pinchScale + ')';
 			}
 		});
 		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);
