@@ -4,8 +4,8 @@
 }
 
 body {
-	background: #EFF0F2;
 	min-height: 100vh;
+	line-height: 1.5;
 	user-select: none;
 }
 
@@ -13,24 +13,43 @@ body {
 	display: none !important;
 }
 
-/* tap doubleTap longTap */
+h1 {
+	padding: 0 15px;
+}
+
+h1+p {
+	padding: 10px 15px;
+}
+
+h4 {
+	padding: 10px 15px;
+	font-size: 14px;
+	line-height: 20px;
+	background: #EFF0F2;
+}
+
+/* tap singleTap doubleTap longTap */
 .tap,
+.single-tap,
 .double-tap,
 .long-tap {
-	margin-bottom: 5px;
 	padding: 15px;
 	font-size: 14px;
 	line-height: 20px;
 	background: #FFF;
 }
 
-.long-tap-mask {
+.long-tap-layer {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	z-index: 999;
+}
+
+.long-tap-mask {
+	height: 100%;
 	background: rgba(0, 0, 0, .6);
 }
 
@@ -67,6 +86,7 @@ body {
 	bottom: 0;
 	left: 0;
 	right: 0;
+	z-index: 1000;
 	list-style: none;
 	border-radius: 5px 5px 0 0;
 	overflow: hidden;
@@ -122,7 +142,6 @@ body {
 
 /* swipe */
 .swipe {
-	margin-bottom: 5px;
 	overflow: hidden;
 }
 
@@ -130,10 +149,6 @@ body {
 	display: flex;
 	width: calc(100% + 140px);
 	background: #FFF;
-}
-
-.item:not(:last-child) {
-	margin-bottom: 5px;
 }
 
 .box {
@@ -185,8 +200,8 @@ body {
 	background: #ec2020;
 }
 
-/* move */
-.hover {
+/* drag */
+.drag {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -202,7 +217,6 @@ body {
 .rotate {
 	display: flex;
 	height: 255px;
-	margin-bottom: 5px;
 	background: #FFF;
 }
 
@@ -218,5 +232,21 @@ body {
 	height: 300px;
 	background: #FFF;
 	overflow: hidden;
-	/* touch-action: none; */
+}
+
+.synthetical {
+	padding: 15px;
+	border-top: 1px solid #EFF0F2;
+}
+
+.synthetical a {
+	display: block;
+	height: 32px;
+	font-size: 14px;
+	line-height: 32px;
+	color: #FFF;
+	text-align: center;
+	text-decoration: none;
+	background: #1890ff;
+	border-radius: 2px;
 }

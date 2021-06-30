@@ -17,6 +17,7 @@
 	</div>
 
 	<script src="../dist/noname-gesture.js"></script>
+	<script src="js/noname-gesture.js"></script>
 	<script>
 		// pinch
 		const pinchDom = document.querySelector('div.container img');
@@ -24,17 +25,17 @@
 		let lastScale = 1;
 		const pinchGesture = new NonameGesture(pinchDom, {
 			pinch: function (e) {
-				pinchData.scale += e.stepZoom;
+				pinchData.scale *= e.stepZoom;
 				// e.stepZoom = pinchData.scale / lastScale;
-				// pinchData.x -= (e.stepZoom - 1) * (e.centerX - pinchData.x) - (e.stepZoom - 1) * result.width * 0.2 - e.stepCenterX;
-				// pinchData.y -= (e.stepZoom - 1) * (e.centerY - pinchData.y) - (e.stepZoom - 1) * result.height * 0.8 - e.stepCenterY;
+				pinchData.x -= (e.stepZoom - 1) * (e.centerX - pinchData.x) - (e.stepZoom - 1) * result.width * 0.5 - e.stepCenterX;
+				pinchData.y -= (e.stepZoom - 1) * (e.centerY - pinchData.y) - (e.stepZoom - 1) * result.height * 0.5 - e.stepCenterY;
 				/* pinchData.x -= (e.stepZoom - 1) * (e.centerX - pinchData.x) - (e.stepZoom - 1) * result.width * 0.2 - e.stepCenterX;
 				pinchData.y -= (e.stepZoom - 1) * (e.centerY - pinchData.y) - (e.stepZoom - 1) * result.height * 0.8 - e.stepCenterY; */
 				/* pinchData.x -= (e.stepZoom - 1) * (e.centerX - pinchData.x) - e.stepCenterX;
 				pinchData.y -= (e.stepZoom - 1) * (e.centerY - pinchData.y) - e.stepCenterY; */
 				pinchDom.style.transform = 'translate3d(' + pinchData.x + 'px, ' + pinchData.y + 'px, 0px) scale(' + pinchData.scale + ')';
 				// lastScale = pinchData.scale;
-				e.scale=pinchData.scale;
+				e.scale = pinchData.scale;
 			}
 		});
 		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);

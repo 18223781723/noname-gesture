@@ -12,15 +12,26 @@
 </head>
 
 <body>
+	<h1>NonameGesture</h1>
+	<p>基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放。兼容主流浏览器，上手简单，零依赖。</p>
+
 	<!-- tap -->
-	<div class="tap" data-count="0">单击次数 0</div>
+	<h4>tap</h4>
+	<div class="tap">tap次数 0</div>
+
+	<!-- singleTap -->
+	<h4>singleTap</h4>
+	<div class="single-tap">singleTap次数 0</div>
 
 	<!-- doubleTap -->
-	<div class="double-tap" data-count="0">双击次数 0</div>
+	<h4>doubleTap</h4>
+	<div class="double-tap">doubleTap次数 0</div>
 
 	<!-- longTap -->
-	<div class="long-tap" data-count="0">长按呼出菜单</div>
-	<div class="long-tap-mask hide">
+	<h4>longTap</h4>
+	<div class="long-tap">长按呼出菜单</div>
+	<div class="long-tap-layer hide">
+		<div class="long-tap-mask"></div>
 		<ul class="long-tap-menu-list">
 			<li class="long-tap-menu-item">菜单一</li>
 			<li class="long-tap-menu-item">菜单二</li>
@@ -31,6 +42,7 @@
 	</div>
 
 	<!-- swipe -->
+	<h4>swipe</h4>
 	<div class="swipe">
 		<div class="swipe-item">
 			<div class="box">
@@ -45,31 +57,48 @@
 		</div>
 	</div>
 
-	<!-- move -->
-	<button class="hover" type="button"></button>
+	<!-- drag -->
+	<button class="drag" type="button"></button>
 
 	<!-- rotate -->
+	<h4>rotate</h4>
 	<div class="rotate">
 		<img src="src/images/image.jpg" alt="">
 	</div>
 
 	<!-- pinch -->
+	<h4>pinch</h4>
 	<div class="pinch">
 		<img src="src/images/image.jpg" alt="">
 	</div>
 
-	<a href="src/demo.html">demo</a>
+	<div class="synthetical">
+		<a href="src/demo.html">综合例子</a>
+	</div>
+
 
 	<!-- <script src="dist/noname-gesture.js"></script> -->
 	<script src="src/js/noname-gesture.js"></script>
+
 	<script>
 		// tap
 		const tapDom = document.querySelector('div.tap');
 		let tapCount = 0;
 		new NonameGesture(tapDom, {
-			tap: function () {
+			tap: function (e) {
 				tapCount++;
-				tapDom.innerHTML = '单击次数 ' + tapCount;
+				tapDom.innerHTML = 'tap次数 ' + tapCount;
+
+			}
+		});
+
+		// singleTap
+		const singleTapDom = document.querySelector('div.single-tap');
+		let singleTapCount = 0;
+		new NonameGesture(singleTapDom, {
+			singleTap: function () {
+				singleTapCount++;
+				singleTapDom.innerHTML = 'singleTap次数 ' + singleTapCount;
 			}
 		});
 
@@ -79,22 +108,23 @@
 		new NonameGesture(doubleTapDom, {
 			doubleTap: function () {
 				doubleTapCount++;
-				doubleTapDom.innerHTML = '双击次数 ' + doubleTapCount;
+				doubleTapDom.innerHTML = 'doubleTap次数 ' + doubleTapCount;
 			}
 		});
 
 		// longTap
 		const longTapDom = document.querySelector('div.long-tap');
+		const layerDom = document.querySelector('div.long-tap-layer');
 		const maskDom = document.querySelector('div.long-tap-mask');
 		const menuDom = document.querySelector('ul.long-tap-menu-list');
 		new NonameGesture(longTapDom, {
 			longTap: function () {
-				maskDom.classList.remove('hide');
+				layerDom.classList.remove('hide');
 				maskDom.classList.add('animate-fade-in');
 				menuDom.classList.add('animate-slide-up');
 			}
 		});
-		new NonameGesture(maskDom, {
+		new NonameGesture(layerDom, {
 			tap: function () {
 				maskDom.classList.add('animate-fade-out');
 				maskDom.classList.remove('animate-fade-in');
@@ -102,27 +132,30 @@
 				menuDom.classList.remove('animate-slide-up');
 			}
 		});
-		maskDom.addEventListener('animationend', function () {
-			if (this.classList.contains('animate-fade-out')) {
-				maskDom.classList.add('hide');
+		layerDom.addEventListener('animationend', function () {
+			if (maskDom.classList.contains('animate-fade-out')) {
+				layerDom.classList.add('hide');
 				maskDom.classList.remove('animate-fade-out');
 				menuDom.classList.remove('animate-slide-down');
 			}
 		});
 
-		// move
-		const moveDom = document.querySelector('button.hover')
-		let moveX = 0;
-		let moveY = window.innerHeight / 2;
-		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
+		// drag
+		const moveDom = document.querySelector('button.drag')
+		let moveX = window.innerWidth - 44;
+		let moveY = window.innerHeight - 150;
+		moveX = moveY = 0;
+		// moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
 		new NonameGesture(moveDom, {
 			tap: function () {
 				window.location.href = 'https://github.com/18223781723/noname-gesture';
 			},
-			move: function (e) {
-				moveX += e.step.x;
-				moveY += e.step.y;
+			drag: function (e, event) {
+				moveX += event.stepX;
+				moveY += event.stepY;
 				moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
+				e.preventDefault();
+				console.log(e.cancelable)
 			}
 		});
 
