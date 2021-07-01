@@ -3,6 +3,7 @@ function NonameGesture(element, options) {
 	this.options = options; // 配置项
 	this.point = { x: 0, y: 0 }; // 第一根手指位置
 	this.point2 = { x: 0, y: 0 }; // 第二根手指位置
+	this.lastPoint = { x: 0, y: 0 }; // 上一次单击位置
 	this.distance = { x: 0, y: 0 }; // 移动距离
 	this.lastDistance = { x: 0, y: 0 }; // 上一次移动距离
 	this.lastMove = { x: 0, y: 0 }; // 上一次移动位置
@@ -13,17 +14,8 @@ function NonameGesture(element, options) {
 	this.points = []; // 移动位置数组
 	this.singleTapTimeout = null;
 	this.longTapTimeout = null;
+	this.hasTriggerSwipe = false; // 是否触发swipe
 	this.rafId = null; // 动画id
-	this.event = {
-		direction: '', // 滑动方向 left right up down
-		stepX: 0, // x轴移动步长
-		stepY: 0, // y轴移动步长
-		distanceX: 0, // x轴移动距离
-		distanceY: 0, // y轴移动距离
-		rotate: 0, // 旋转角度 正值顺时针旋转，负值逆时针旋转
-		scale: 1, // 缩放倍数 大于1放大，小于1缩小
-		hasTriggerSwipe: false // 是否触发swipe
-	};
 	this.init();
 }
 /**
@@ -35,18 +27,9 @@ NonameGesture.prototype.init = function () {
 NonameGesture.prototype.handleTouchStart = function (e) {
 	this.point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 	this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-	this.event = {
-		direction: '',
-		stepX: 0,
-		stepY: 0,
-		distanceX: 0,
-		distanceY: 0,
-		rotate: 0,
-		scale: 1,
-		hasTriggerSwipe: false
-	};
+	this.points = [];
+	this.hasTriggerSwipe = false;
 	if (e.touches.length === 1) {
-		this.points = [];
 		this.tapCount++;
 		clearTimeout(this.singleTapTimeout);
 		if (this.tapCount === 1) {
@@ -54,6 +37,11 @@ NonameGesture.prototype.handleTouchStart = function (e) {
 				this.tapCount = 0;
 				if (this.options.longTap) this.options.longTap();
 			}, 500);
+		}
+		if (this.tapCount > 1) {
+			if (Math.abs(this.point.x - this.lastPoint.x) > 30 || Math.abs(this.point.y - this.lastPoint.y) > 30) {
+				this.tapCount = 1;
+			}
 		}
 	} else if (e.touches.length === 2) {
 		this.tapCount = 0;
@@ -63,6 +51,7 @@ NonameGesture.prototype.handleTouchStart = function (e) {
 		this.lastScale = 1;
 		this.lastCenter = null;
 	}
+	this.lastPoint = { x: this.point.x, y: this.point.y };
 	if (this.options.touchStart) this.options.touchStart(e);
 }
 NonameGesture.prototype.handleTouchMove = function (e) {
@@ -71,60 +60,34 @@ NonameGesture.prototype.handleTouchMove = function (e) {
 		this.distance = { x: point.x - this.point.x + this.lastDistance.x, y: point.y - this.point.y + this.lastDistance.y };
 		this.tapCount = 0;
 		clearTimeout(this.longTapTimeout);
+		// swipe
 		if (this.points.length === 20) this.points.pop();
 		this.points.unshift({ x: point.x, y: point.y, timeStamp: e.timeStamp });
-		this.event.stepX = point.x - this.lastMove.x;
-		this.event.stepY = point.y - this.lastMove.y;
-		this.event.distanceX = point.x - this.point.x + this.lastDistance.x;
-		this.event.distanceY = point.y - this.point.y + this.lastDistance.y;
-		if (this.options.drag) this.options.drag(e, this.event);
+		// drag
+		e._stepX = point.x - this.lastMove.x;
+		e._stepY = point.y - this.lastMove.y;
+		e._distanceX = point.x - this.point.x + this.lastDistance.x;
+		e._distanceY = point.y - this.point.y + this.lastDistance.y;
+		if (this.options.drag) this.options.drag(e);
 		this.lastMove = { x: point.x, y: point.y };
 	} else if (e.touches.length === 2) {
 		const point2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
 		// rotate
-		let totalAngle = this.getAngle(point, point2) - this.getAngle(this.point, this.point2);
-		let stepAngle = totalAngle - this.lastRotate;
-		this.lastRotate = totalAngle;
-		if (this.options.rotate) this.options.rotate(totalAngle, stepAngle);
+		this.handleRotate(e, point, point2);
+		if (this.options.rotate) this.options.rotate(e);
 		// pinch
-		this.handlePinch(point, point2);
-		e.preventDefault();
+		this.handlePinch(e, point, point2);
+		if (this.options.pinch) this.options.pinch(e);
 	}
 	if (this.options.touchMove) this.options.touchMove(e);
 
 }
 NonameGesture.prototype.handleTouchEnd = function (e) {
 	if (e.touches.length === 0) {
-
 		clearTimeout(this.longTapTimeout);
 		if (this.tapCount === 0) {
-
-			const swipeDistance = { x: 0, y: 0 };
-			const SWIPE_DISTANCE = 30;
-
-			let direction = '';
-			for (const item of this.points) {
-				if (e.timeStamp - item.timeStamp > 250) break;
-				swipeDistance.x = e.changedTouches[0].clientX - item.x;
-				swipeDistance.y = e.changedTouches[0].clientY - item.y;
-			}
-			if (Math.abs(swipeDistance.x) > SWIPE_DISTANCE) {
-				if (swipeDistance.x > 0) {
-					direction = 'right';
-				} else {
-					direction = 'left'
-				}
-				this.event.hasTriggerSwipe = true;
-				if (this.options.swipe) this.options.swipe(direction);
-			} else if (Math.abs(swipeDistance.y) > SWIPE_DISTANCE) {
-				if (swipeDistance.y > 0) {
-					direction = 'down';
-				} else {
-					direction = 'up'
-				}
-				this.event.hasTriggerSwipe = true;
-				if (this.options.swipe) this.options.swipe(direction);
-			}
+			e._hasTriggerSwipe = this.hasTriggerSwipe;
+			this.handleSwipe(e);
 		} else {
 			if (this.options.tap) this.options.tap();
 			if (this.tapCount === 1) {
@@ -142,32 +105,53 @@ NonameGesture.prototype.handleTouchEnd = function (e) {
 		this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 		this.lastDistance = { x: this.distance.x, y: this.distance.y };
 	}
-	this.event.distance = { x: this.distance.x, y: this.distance.y }
-	if (this.options.touchEnd) this.options.touchEnd(e, this.event);
+	e._distanceX = this.distance.x;
+	e._distanceY = this.distance.y;
+	if (this.options.touchEnd) this.options.touchEnd(e);
 }
 NonameGesture.prototype.handleTouchCancel = function (e) {
 	this.tapCount = 0;
 }
-NonameGesture.prototype.handlePinch = function (point, point2) {
-	let totalZoom = this.getDistance(point, point2) / this.getDistance(this.point, this.point2);
-	let stepZoom = totalZoom / this.lastScale;
-
+NonameGesture.prototype.handleSwipe = function (e) {
+	const swipeDistance = { x: 0, y: 0 };
+	const SWIPE_DISTANCE = 20;
+	for (const item of this.points) {
+		if (e.timeStamp - item.timeStamp > 250) break;
+		swipeDistance.x = e.changedTouches[0].clientX - item.x;
+		swipeDistance.y = e.changedTouches[0].clientY - item.y;
+	}
+	if (Math.abs(swipeDistance.x) > SWIPE_DISTANCE) {
+		if (swipeDistance.x > 0) {
+			e._swipeDirection = 'right';
+		} else {
+			e._swipeDirection = 'left'
+		}
+		this.hasTriggerSwipe = true;
+		if (this.options.swipe) this.options.swipe(e);
+	} else if (Math.abs(swipeDistance.y) > SWIPE_DISTANCE) {
+		if (swipeDistance.y > 0) {
+			e._swipeDirection = 'down';
+		} else {
+			e._swipeDirection = 'up'
+		}
+		this.hasTriggerSwipe = true;
+		if (this.options.swipe) this.options.swipe(e);
+	}
+}
+NonameGesture.prototype.handleRotate = function (e, point, point2) {
+	let rotate = this.getAngle(point, point2) - this.getAngle(this.point, this.point2);
+	e._rotate = rotate - this.lastRotate;
+	this.lastRotate = rotate;
+}
+NonameGesture.prototype.handlePinch = function (e, point, point2) {
+	let scale = this.getDistance(point, point2) / this.getDistance(this.point, this.point2);
+	e._scale = scale / this.lastScale;
+	this.lastScale = scale;
 	let center = this.getCenter(point, point2);
 	if (this.lastCenter === null) this.lastCenter = { x: center.x, y: center.y };
-	let stepCenter = { x: center.x - this.lastCenter.x, y: center.y - this.lastCenter.y };
+	e._enter = { x: center.x - this.lastCenter.x, y: center.y - this.lastCenter.y };
 	this.lastCenter = center;
-	if (this.options.pinch) this.options.pinch({
-		x: stepZoom * stepCenter.x,
-		y: stepZoom * stepCenter.y,
-		totalZoom: totalZoom,
-		stepZoom: stepZoom,
-		centerX: center.x,
-		centerY: center.y,
-		stepCenterX: stepCenter.x,
-		stepCenterY: stepCenter.y,
-		lastScale: this.lastScale
-	});
-	this.lastScale = totalZoom;
+	this.lastScale = scale;
 }
 NonameGesture.prototype.bindEvent = function () {
 	this.handleTouchStart = this.handleTouchStart.bind(this);
@@ -228,23 +212,23 @@ NonameGesture.prototype.getCenter = function (point, point2) {
 	const y = (point.y + point2.y) / 2;
 	return { x: x, y: y }
 }
-NonameGesture.prototype.getImgSize = function (naturalWidth, naturalHeight, containerWidth, containerHeight) {
+NonameGesture.prototype.getImgSize = function (naturalWidth, naturalHeight, maxWidth, maxHeight) {
 	const imgRatio = naturalWidth / naturalHeight;
-	const containerRatio = containerWidth / containerHeight;
+	const maxRatio = maxWidth / maxHeight;
 	let width, height;
 	// 如果图片实际宽高比例 >= 屏幕宽高比例
-	if (imgRatio >= containerRatio) {
-		if (naturalWidth > containerWidth) {
-			width = containerWidth;
-			height = containerWidth / naturalWidth * naturalHeight;
+	if (imgRatio >= maxRatio) {
+		if (naturalWidth > maxWidth) {
+			width = maxWidth;
+			height = maxWidth / naturalWidth * naturalHeight;
 		} else {
 			width = naturalWidth;
 			height = naturalHeight;
 		}
 	} else {
-		if (naturalHeight > containerHeight) {
-			width = containerHeight / naturalHeight * naturalWidth;
-			height = containerHeight;
+		if (naturalHeight > maxHeight) {
+			width = maxHeight / naturalHeight * naturalWidth;
+			height = maxHeight;
 		} else {
 			width = naturalWidth;
 			height = naturalHeight;

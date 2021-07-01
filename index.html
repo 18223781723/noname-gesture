@@ -72,6 +72,7 @@
 		<img src="src/images/image.jpg" alt="">
 	</div>
 
+	<!-- demo -->
 	<div class="synthetical">
 		<a href="src/demo.html">综合例子</a>
 	</div>
@@ -96,7 +97,7 @@
 		const singleTapDom = document.querySelector('div.single-tap');
 		let singleTapCount = 0;
 		new NonameGesture(singleTapDom, {
-			singleTap: function () {
+			singleTap: function (e) {
 				singleTapCount++;
 				singleTapDom.innerHTML = 'singleTap次数 ' + singleTapCount;
 			}
@@ -106,7 +107,7 @@
 		const doubleTapDom = document.querySelector('div.double-tap');
 		let doubleTapCount = 0;
 		new NonameGesture(doubleTapDom, {
-			doubleTap: function () {
+			doubleTap: function (e) {
 				doubleTapCount++;
 				doubleTapDom.innerHTML = 'doubleTap次数 ' + doubleTapCount;
 			}
@@ -118,14 +119,14 @@
 		const maskDom = document.querySelector('div.long-tap-mask');
 		const menuDom = document.querySelector('ul.long-tap-menu-list');
 		new NonameGesture(longTapDom, {
-			longTap: function () {
+			longTap: function (e) {
 				layerDom.classList.remove('hide');
 				maskDom.classList.add('animate-fade-in');
 				menuDom.classList.add('animate-slide-up');
 			}
 		});
 		new NonameGesture(layerDom, {
-			tap: function () {
+			tap: function (e) {
 				maskDom.classList.add('animate-fade-out');
 				maskDom.classList.remove('animate-fade-in');
 				menuDom.classList.add('animate-slide-down');
@@ -144,18 +145,16 @@
 		const moveDom = document.querySelector('button.drag')
 		let moveX = window.innerWidth - 44;
 		let moveY = window.innerHeight - 150;
-		moveX = moveY = 0;
-		// moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
+		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
 		new NonameGesture(moveDom, {
-			tap: function () {
+			tap: function (e) {
 				window.location.href = 'https://github.com/18223781723/noname-gesture';
 			},
-			drag: function (e, event) {
-				moveX += event.stepX;
-				moveY += event.stepY;
+			drag: function (e) {
+				moveX += e._stepX;
+				moveY += e._stepY;
 				moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
 				e.preventDefault();
-				console.log(e.cancelable)
 			}
 		});
 
@@ -164,8 +163,8 @@
 		let from, to, swipeX = 0;
 		swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
 		const swipeGesture = new NonameGesture(swipeDom, {
-			move: function (e) {
-				swipeX += e.step.x;
+			drag: function (e,) {
+				swipeX += e._stepX;
 				if (swipeX > 0) {
 					swipeX = 0
 				} else if (swipeX < -140) {
@@ -174,31 +173,33 @@
 				from = swipeX;
 				swipeDom.style.transition = 'none';
 				swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
+				e.preventDefault();
 			},
 			swipe: function (e) {
-				if (e === 'left') {
+				if (e._swipeDirection === 'left') {
 					swipeX = -140;
-				} else if (e === 'right') {
+				} else if (e._swipeDirection === 'right') {
 					swipeX = 0;
 				}
 				to = swipeX;
 				swipeDom.style.transition = 'transform .3s ease';
 				swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
+
 				/* swipeGesture.raf(function (time) {
 					let x = swipeGesture.easeOut(from, to, time, 300);
 					swipeDom.style.transform = 'translate3d(' + x + 'px, 0px , 0px)';
 				}); */
 			},
-			touchEnd: function (e, data) {
-				if (!data.hasTriggerSwipe) {
-					if (Math.abs(data.distance.x) > 50) {
-						if (data.distance.x < 0) {
+			touchEnd: function (e) {
+				if (!e._hasTriggerSwipe) {
+					if (Math.abs(e._distanceX) > 50) {
+						if (e._distanceX < 0) {
 							swipeX = -140
 						} else {
 							swipeX = 0;
 						}
 					} else {
-						if (data.distance.x < 0) {
+						if (e._distanceX < 0) {
 							swipeX = 0
 						} else {
 							swipeX = -140;
@@ -213,21 +214,23 @@
 
 		// rotate
 		const rotateDom = document.querySelector('.rotate img');
-		let angle = 0;
+		let rotate = 0;
 		new NonameGesture(rotateDom, {
-			rotate: function (totalAngle, stepAngle) {
-				angle += stepAngle;
-				rotateDom.style.transform = 'rotate(' + angle + 'deg)';
+			rotate: function (e) {
+				rotate += e._rotate;
+				rotateDom.style.transform = 'rotate(' + rotate + 'deg)';
+				e.preventDefault();
 			}
 		});
 
 		// pinch
 		const pinchDom = document.querySelector('.pinch img');
-		let pinchScale = 1;
+		let scale = 1;
 		const pinchGesture = new NonameGesture(pinchDom, {
 			pinch: function (e) {
-				pinchScale *= e.stepZoom;
-				pinchDom.style.transform = 'translate3d(0px, 45px, 0) scale(' + pinchScale + ')';
+				scale *= e._scale;
+				pinchDom.style.transform = 'translate3d(0px, 45px, 0) scale(' + scale + ')';
+				e.preventDefault();
 			}
 		});
 		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);
