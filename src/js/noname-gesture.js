@@ -12,6 +12,7 @@ function NonameGesture(element, options) {
 	this.lastScale = 1; // 上一次缩放比例
 	this.tapCount = 0; // 点击计数器
 	this.points = []; // 移动位置数组
+	this.dragDirection = ''; // 拖拽方向
 	this.singleTapTimeout = null;
 	this.longTapTimeout = null;
 	this.hasTriggerSwipe = false; // 是否触发swipe
@@ -27,6 +28,7 @@ NonameGesture.prototype.init = function () {
 NonameGesture.prototype.handleTouchStart = function (e) {
 	this.point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 	this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+	this.dragDirection = '';
 	this.points = [];
 	this.hasTriggerSwipe = false;
 	if (e.touches.length === 1) {
@@ -64,10 +66,26 @@ NonameGesture.prototype.handleTouchMove = function (e) {
 		if (this.points.length === 20) this.points.pop();
 		this.points.unshift({ x: point.x, y: point.y, timeStamp: e.timeStamp });
 		// drag
+		if (this.dragDirection === '') {
+			if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
+				if (Math.abs(this.distance.x) > Math.abs(Math.abs(this.distance.y))) {
+					this.dragDirection = 'left';
+					if (this.distance.x > 0) {
+						this.dragDirection = 'right';
+					}
+				} else {
+					this.dragDirection = 'up';
+					if (this.distance.y > 0) {
+						this.dragDirection = 'down';
+					}
+				}
+			}
+		}
 		e._stepX = point.x - this.lastMove.x;
 		e._stepY = point.y - this.lastMove.y;
 		e._distanceX = point.x - this.point.x + this.lastDistance.x;
 		e._distanceY = point.y - this.point.y + this.lastDistance.y;
+		e._dragDirection = this.dragDirection;
 		if (this.options.drag) this.options.drag(e);
 		this.lastMove = { x: point.x, y: point.y };
 	} else if (e.touches.length === 2) {
@@ -146,10 +164,12 @@ NonameGesture.prototype.handleRotate = function (e, point, point2) {
 NonameGesture.prototype.handlePinch = function (e, point, point2) {
 	let scale = this.getDistance(point, point2) / this.getDistance(this.point, this.point2);
 	e._scale = scale / this.lastScale;
-	this.lastScale = scale;
 	let center = this.getCenter(point, point2);
 	if (this.lastCenter === null) this.lastCenter = { x: center.x, y: center.y };
-	e._enter = { x: center.x - this.lastCenter.x, y: center.y - this.lastCenter.y };
+	e._centerX = center.x;
+	e._centerY = center.y;
+	e._lastCenterX = this.lastCenter.x;
+	e._lastCenterY = this.lastCenter.y;
 	this.lastCenter = center;
 	this.lastScale = scale;
 }

@@ -14,8 +14,3 @@ body {
 	background: #000;
 	touch-action: none;
 }
-
-.container img {
-	/* transform-origin: left top; */
-	/* transform-origin: 20% 80%; */
-}
