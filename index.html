@@ -180,9 +180,11 @@
 					swipeX = -140;
 				} else if (e._swipeDirection === 'right') {
 					swipeX = 0;
+				} else {
+					swipeX = 0;
 				}
 				to = swipeX;
-				swipeDom.style.transition = 'transform .3s ease';
+				swipeDom.style.transition = 'transform .2s ease';
 				swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
 
 				/* swipeGesture.raf(function (time) {
@@ -192,21 +194,21 @@
 			},
 			touchEnd: function (e) {
 				if (!e._hasTriggerSwipe) {
-					if (Math.abs(e._distanceX) > 50) {
-						if (e._distanceX < 0) {
-							swipeX = -140
+					if (e._distanceX < 0) {
+						if (e._distanceX <= -50) {
+							swipeX = -140;
 						} else {
 							swipeX = 0;
 						}
-					} else {
-						if (e._distanceX < 0) {
-							swipeX = 0
+					} else if (e._distanceX > 0) {
+						if (e._distanceX > 50) {
+							swipeX = 0;
 						} else {
 							swipeX = -140;
 						}
 					}
 					to = swipeX;
-					swipeDom.style.transition = 'transform .3s ease';
+					swipeDom.style.transition = 'transform .2s ease';
 					swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
 				}
 			}

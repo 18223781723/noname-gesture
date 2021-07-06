@@ -15,7 +15,6 @@ function NonameGesture(element, options) {
 	this.dragDirection = ''; // 拖拽方向
 	this.singleTapTimeout = null;
 	this.longTapTimeout = null;
-	this.hasTriggerSwipe = false; // 是否触发swipe
 	this.rafId = null; // 动画id
 	this.init();
 }
@@ -30,7 +29,6 @@ NonameGesture.prototype.handleTouchStart = function (e) {
 	this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 	this.dragDirection = '';
 	this.points = [];
-	this.hasTriggerSwipe = false;
 	if (e.touches.length === 1) {
 		this.tapCount++;
 		clearTimeout(this.singleTapTimeout);
@@ -104,7 +102,6 @@ NonameGesture.prototype.handleTouchEnd = function (e) {
 	if (e.touches.length === 0) {
 		clearTimeout(this.longTapTimeout);
 		if (this.tapCount === 0) {
-			e._hasTriggerSwipe = this.hasTriggerSwipe;
 			this.handleSwipe(e);
 		} else {
 			if (this.options.tap) this.options.tap();
@@ -133,6 +130,7 @@ NonameGesture.prototype.handleTouchCancel = function (e) {
 NonameGesture.prototype.handleSwipe = function (e) {
 	const swipeDistance = { x: 0, y: 0 };
 	const SWIPE_DISTANCE = 20;
+	e._hasTriggerSwipe = false;
 	for (const item of this.points) {
 		if (e.timeStamp - item.timeStamp > 250) break;
 		swipeDistance.x = e.changedTouches[0].clientX - item.x;
@@ -144,7 +142,7 @@ NonameGesture.prototype.handleSwipe = function (e) {
 		} else {
 			e._swipeDirection = 'left'
 		}
-		this.hasTriggerSwipe = true;
+		e._hasTriggerSwipe = true;
 		if (this.options.swipe) this.options.swipe(e);
 	} else if (Math.abs(swipeDistance.y) > SWIPE_DISTANCE) {
 		if (swipeDistance.y > 0) {
@@ -152,7 +150,7 @@ NonameGesture.prototype.handleSwipe = function (e) {
 		} else {
 			e._swipeDirection = 'up'
 		}
-		this.hasTriggerSwipe = true;
+		e._hasTriggerSwipe = true;
 		if (this.options.swipe) this.options.swipe(e);
 	}
 }
