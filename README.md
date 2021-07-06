@@ -14,8 +14,6 @@ In a browser:
 # Example
 ```javascript
 <div id="box"></div>
-<img id="pinch" src="xxx.png" alt="">
-
 const divDom = document.getElementById('box');
 new NonameGesture(divDom, {
 	touchStart: function (e) { },
@@ -29,11 +27,11 @@ new NonameGesture(divDom, {
 	drag: function (e) { },
 	swipe: function (e) { },
 	rotate: function (e) { },
-	pinch: function (e) { },
+	pinch: function (e) { }
 });
 
-const pinchDom = document.getElementById('pinch');
-
+<img id="rotate" src="xxx.png" alt="">
+const rotateDom = document.getElementById('pinch');
 let rotate = 0;
 new NonameGesture(rotateDom, {
 	rotate: function (e) {
@@ -42,9 +40,12 @@ new NonameGesture(rotateDom, {
 	}
 });
 
+<img id="pinch" src="xxx.png" alt="">
+const pinchDom = document.getElementById('pinch');
 let x = 0, y = 0, scale = 1;
-const gesture = new NonameGesture(pinchDom, {
+const pinchGesture = new NonameGesture(pinchDom, {
 	pinch: function (e) {
+		scale *= e._scale;
 		x -= (e._scale - 1) * (e._centerX - x) - (e._scale - 1) * result.width * 0.5 - (e._centerX - e._lastCenterX);
 		y -= (e._scale - 1) * (e._centerY - x) - (e._scale - 1) * result.height * 0.5 - (e._centerY - e._lastCenterY);
 		pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
