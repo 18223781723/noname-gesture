@@ -1,7 +1,7 @@
 /**
- * 使用PointerEvent实现的手势库
- * @param {HTMLElement} element
- * @param {object} options
+ * 使用TouchEvent实现的手势库
+ * @param {HTMLElement} element 
+ * @param {object} options 
  */
 function NonameGesture(element, options) {
 	this.element = element; // 绑定事件的元素
@@ -17,27 +17,24 @@ function NonameGesture(element, options) {
 	this.lastScale = 1; // 上一次缩放比例
 	this.tapCount = 0; // 点击计数器
 	this.points = []; // 移动位置数组
-	this.pointers = [];
 	this.dragDirection = ''; // 拖拽方向
-	this.isPointerDown = false;
 	this.singleTapTimeout = null;
 	this.longTapTimeout = null;
 	this.rafId = null; // 动画id
-	this.bindEvent();
+	this.init();
 }
 /**
- * 
- * @param {PointerEvent} e 
+ * 初始化
  */
-NonameGesture.prototype.handlePointerDown = function (e) {
-	this.element.setPointerCapture(e.pointerId);
-	this.isPointerDown = true;
-	this.pointers.push(e);
-	this.point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-	this.lastMove = { x: e.clientX, y: e.clientY };
+NonameGesture.prototype.init = function () {
+	this.bindEvent();
+}
+NonameGesture.prototype.handleTouchStart = function (e) {
+	this.point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+	this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 	this.dragDirection = '';
 	this.points = [];
-	if (this.pointers.length === 1) {
+	if (e.touches.length === 1) {
 		this.tapCount++;
 		clearTimeout(this.singleTapTimeout);
 		if (this.tapCount === 1) {
@@ -51,71 +48,63 @@ NonameGesture.prototype.handlePointerDown = function (e) {
 				this.tapCount = 1;
 			}
 		}
-	} else if (this.pointers.length === 2) {
+	} else if (e.touches.length === 2) {
 		this.tapCount = 0;
 		clearTimeout(this.longTapTimeout);
-		this.point2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
+		this.point2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
 		this.lastRotate = 0;
 		this.lastScale = 1;
 		this.lastCenter = null;
 	}
 	this.lastPoint = { x: this.point.x, y: this.point.y };
 	if (this.options.touchStart) this.options.touchStart(e);
-	console.log(e.type);
 }
-NonameGesture.prototype.handlePointerMove = function (e) {
-	if (this.isPointerDown) {
-		this.handlePointers(e, 'update');
-		const point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-		if (this.pointers.length === 1) {
-			this.distance = { x: point.x - this.point.x + this.lastDistance.x, y: point.y - this.point.y + this.lastDistance.y };
+NonameGesture.prototype.handleTouchMove = function (e) {
+	const point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+	if (e.touches.length === 1) {
+		this.distance = { x: point.x - this.point.x + this.lastDistance.x, y: point.y - this.point.y + this.lastDistance.y };
+		this.tapCount = 0;
+		clearTimeout(this.longTapTimeout);
+		// swipe
+		if (this.points.length === 20) this.points.pop();
+		this.points.unshift({ x: point.x, y: point.y, timeStamp: e.timeStamp });
+		// drag
+		if (this.dragDirection === '') {
 			if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
-				this.tapCount = 0;
-			clearTimeout(this.longTapTimeout);
-			}
-			// swipe
-			if (this.points.length === 20) this.points.pop();
-			this.points.unshift({ x: point.x, y: point.y, timeStamp: e.timeStamp });
-			// drag
-			if (this.dragDirection === '') {
-				if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
-					if (Math.abs(this.distance.x) > Math.abs(Math.abs(this.distance.y))) {
-						this.dragDirection = 'left';
-						if (this.distance.x > 0) {
-							this.dragDirection = 'right';
-						}
-					} else {
-						this.dragDirection = 'up';
-						if (this.distance.y > 0) {
-							this.dragDirection = 'down';
-						}
+				if (Math.abs(this.distance.x) > Math.abs(Math.abs(this.distance.y))) {
+					this.dragDirection = 'left';
+					if (this.distance.x > 0) {
+						this.dragDirection = 'right';
+					}
+				} else {
+					this.dragDirection = 'up';
+					if (this.distance.y > 0) {
+						this.dragDirection = 'down';
 					}
 				}
 			}
-			e._stepX = point.x - this.lastMove.x;
-			e._stepY = point.y - this.lastMove.y;
-			e._distanceX = point.x - this.point.x + this.lastDistance.x;
-			e._distanceY = point.y - this.point.y + this.lastDistance.y;
-			e._dragDirection = this.dragDirection;
-			if (this.options.drag) this.options.drag(e);
-			this.lastMove = { x: point.x, y: point.y };
-		} else if (this.pointers.length === 2) {
-			const point2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
-			// rotate
-			this.handleRotate(e, point, point2);
-			if (this.options.rotate) this.options.rotate(e);
-			// pinch
-			this.handlePinch(e, point, point2);
-			if (this.options.pinch) this.options.pinch(e);
 		}
-		if (this.options.touchMove) this.options.touchMove(e);
-		console.log(e.type);
+		e._stepX = point.x - this.lastMove.x;
+		e._stepY = point.y - this.lastMove.y;
+		e._distanceX = point.x - this.point.x + this.lastDistance.x;
+		e._distanceY = point.y - this.point.y + this.lastDistance.y;
+		e._dragDirection = this.dragDirection;
+		if (this.options.drag) this.options.drag(e);
+		this.lastMove = { x: point.x, y: point.y };
+	} else if (e.touches.length === 2) {
+		const point2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+		// rotate
+		this.handleRotate(e, point, point2);
+		if (this.options.rotate) this.options.rotate(e);
+		// pinch
+		this.handlePinch(e, point, point2);
+		if (this.options.pinch) this.options.pinch(e);
 	}
+	if (this.options.touchMove) this.options.touchMove(e);
+
 }
-NonameGesture.prototype.handlePointerUp = function (e) {
-	this.isPointerDown = false;
-	this.handlePointers(e, 'delete');
-	if (this.pointers.length === 0) {
+NonameGesture.prototype.handleTouchEnd = function (e) {
+	if (e.touches.length === 0) {
 		clearTimeout(this.longTapTimeout);
 		if (this.tapCount === 0) {
 			this.handleSwipe(e);
@@ -131,38 +120,17 @@ NonameGesture.prototype.handlePointerUp = function (e) {
 				if (this.options.doubleTap) this.options.doubleTap();
 			}
 		}
-	} else if (this.pointers.length === 1) {
-		this.point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-		this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+	} else if (e.touches.length === 1) {
+		this.point = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+		this.lastMove = { x: e.touches[0].clientX, y: e.touches[0].clientY };
 		this.lastDistance = { x: this.distance.x, y: this.distance.y };
 	}
 	e._distanceX = this.distance.x;
 	e._distanceY = this.distance.y;
 	if (this.options.touchEnd) this.options.touchEnd(e);
-	console.log(e.type);
 }
-NonameGesture.prototype.handlePointerCancel = function (e) {
-	this.isPointerDown = false;
+NonameGesture.prototype.handleTouchCancel = function (e) {
 	this.tapCount = 0;
-	clearTimeout(this.longTapTimeout);
-	this.pointers = [];
-	console.log(e.type);
-}
-/**
- * 更新或删除指针
- * @param {PointerEvent} e
- * @param {string} type
- */
-NonameGesture.prototype.handlePointers = function (e, type) {
-	for (let i = 0; i < this.pointers.length; i++) {
-		if (this.pointers[i].pointerId === e.pointerId) {
-			if (type === 'update') {
-				this.pointers[i] = e;
-			} else if (type === 'delete') {
-				this.pointers.splice(i, 1);
-			}
-		}
-	}
 }
 NonameGesture.prototype.handleSwipe = function (e) {
 	const swipeDistance = { x: 0, y: 0 };
@@ -170,8 +138,8 @@ NonameGesture.prototype.handleSwipe = function (e) {
 	e._hasTriggerSwipe = false;
 	for (const item of this.points) {
 		if (e.timeStamp - item.timeStamp > 250) break;
-		swipeDistance.x = e.clientX - item.x;
-		swipeDistance.y = e.clientY - item.y;
+		swipeDistance.x = e.changedTouches[0].clientX - item.x;
+		swipeDistance.y = e.changedTouches[0].clientY - item.y;
 	}
 	if (Math.abs(swipeDistance.x) > SWIPE_DISTANCE) {
 		if (swipeDistance.x > 0) {
@@ -209,20 +177,20 @@ NonameGesture.prototype.handlePinch = function (e, point, point2) {
 	this.lastScale = scale;
 }
 NonameGesture.prototype.bindEvent = function () {
-	this.handlePointerDown = this.handlePointerDown.bind(this);
-	this.handlePointerMove = this.handlePointerMove.bind(this);
-	this.handlePointerUp = this.handlePointerUp.bind(this);
-	this.handlePointerCancel = this.handlePointerCancel.bind(this);
-	this.element.addEventListener('pointerdown', this.handlePointerDown);
-	this.element.addEventListener('pointermove', this.handlePointerMove);
-	this.element.addEventListener('pointerup', this.handlePointerUp);
-	this.element.addEventListener('pointercancel', this.handlePointerCancel);
+	this.handleTouchStart = this.handleTouchStart.bind(this);
+	this.handleTouchMove = this.handleTouchMove.bind(this);
+	this.handleTouchEnd = this.handleTouchEnd.bind(this);
+	this.handleTouchCancel = this.handleTouchCancel.bind(this);
+	this.element.addEventListener('touchstart', this.handleTouchStart);
+	this.element.addEventListener('touchmove', this.handleTouchMove);
+	this.element.addEventListener('touchend', this.handleTouchEnd);
+	this.element.addEventListener('touchcancel', this.handleTouchCancel);
 }
 NonameGesture.prototype.unbindEvent = function () {
-	this.element.removeEventListener('pointerdown', this.handlePointerDown);
-	this.element.removeEventListener('pointermove', this.handlePointerMove);
-	this.element.removeEventListener('pointerup', this.handlePointerUp);
-	this.element.removeEventListener('pointercancel', this.handlePointerCancel);
+	this.element.removeEventListener('touchstart', this.handleTouchStart);
+	this.element.removeEventListener('touchmove', this.handleTouchMove);
+	this.element.removeEventListener('touchend', this.handleTouchEnd);
+	this.element.removeEventListener('touchcancel', this.handleTouchCancel);
 }
 NonameGesture.prototype.destroy = function () {
 	this.unbindEvent();

@@ -134,6 +134,7 @@ h4 {
 }
 
 .tap:active,
+.single-tap:active,
 .double-tap:active,
 .long-tap:active,
 .long-tap-menu-item:active {
@@ -143,6 +144,7 @@ h4 {
 /* swipe */
 .swipe {
 	overflow: hidden;
+	touch-action: none;
 }
 
 .swipe-item {
@@ -211,6 +213,7 @@ h4 {
 	border: none;
 	border-radius: 50%;
 	background: #fff url(../images/github.png) no-repeat center / 44px;
+	touch-action: none;
 }
 
 /* rotate */
@@ -225,6 +228,7 @@ h4 {
 	height: 180px;
 	object-fit: cover;
 	margin: auto;
+	touch-action: none;
 }
 
 /* pinch */
@@ -232,6 +236,10 @@ h4 {
 	height: 300px;
 	background: #FFF;
 	overflow: hidden;
+}
+
+.pinch img {
+	touch-action: none;
 }
 
 .synthetical {
