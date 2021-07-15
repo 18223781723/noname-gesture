@@ -191,7 +191,7 @@
 					swipeDom.style.transform = 'translate3d(' + x + 'px, 0px , 0px)';
 				}); */
 			},
-			touchEnd: function (e) {
+			pointerUp: function (e) {
 				if (!e._hasTriggerSwipe) {
 					if (e._distanceX < 0) {
 						if (e._distanceX <= -50) {
