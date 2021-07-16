@@ -78,8 +78,8 @@
 	</div>
 
 
-	<!-- <script src="dist/noname-gesture.js"></script> -->
-	<script src="src/js/noname-gesture.js"></script>
+	<!-- <script src="src/js/noname-gesture.js"></script> -->
+	<script src="dist/noname-gesture.min.js"></script>
 
 	<script>
 		// tap
@@ -150,10 +150,9 @@
 				window.location.href = 'https://github.com/18223781723/noname-gesture';
 			},
 			drag: function (e) {
-				moveX += e._stepX;
-				moveY += e._stepY;
+				moveX += e._diffX;
+				moveY += e._diffY;
 				moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
-				e.preventDefault();
 			}
 		});
 
@@ -163,7 +162,7 @@
 		swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
 		const swipeGesture = new NonameGesture(swipeDom, {
 			drag: function (e,) {
-				swipeX += e._stepX;
+				swipeX += e._diffX;
 				if (swipeX > 0) {
 					swipeX = 0
 				} else if (swipeX < -140) {
@@ -172,39 +171,27 @@
 				from = swipeX;
 				swipeDom.style.transition = 'none';
 				swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
-				e.preventDefault();
 			},
 			swipe: function (e) {
+				swipeX = 0;
 				if (e._swipeDirection === 'left') {
 					swipeX = -140;
-				} else if (e._swipeDirection === 'right') {
-					swipeX = 0;
-				} else {
-					swipeX = 0;
 				}
 				to = swipeX;
 				swipeDom.style.transition = 'transform .2s ease';
 				swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
-
-				/* swipeGesture.raf(function (time) {
-					let x = swipeGesture.easeOut(from, to, time, 300);
+				/* const duration = 200;
+				swipeGesture.raf(function (time) {
+					let x = swipeGesture.easeOut(from, to, time, duration);
 					swipeDom.style.transform = 'translate3d(' + x + 'px, 0px , 0px)';
-				}); */
+				}, duration); */
 			},
 			pointerUp: function (e) {
 				if (!e._hasTriggerSwipe) {
 					if (e._distanceX < 0) {
-						if (e._distanceX <= -50) {
-							swipeX = -140;
-						} else {
-							swipeX = 0;
-						}
-					} else if (e._distanceX > 0) {
-						if (e._distanceX > 50) {
-							swipeX = 0;
-						} else {
-							swipeX = -140;
-						}
+						swipeX = e._distanceX <= -50 ? -140 : 0;
+					} else {
+						swipeX = e._distanceX > 50 ? 0 : -140;
 					}
 					to = swipeX;
 					swipeDom.style.transition = 'transform .2s ease';
@@ -220,7 +207,6 @@
 			rotate: function (e) {
 				rotate += e._rotate;
 				rotateDom.style.transform = 'rotate(' + rotate + 'deg)';
-				e.preventDefault();
 			}
 		});
 
@@ -231,7 +217,6 @@
 			pinch: function (e) {
 				scale *= e._scale;
 				pinchDom.style.transform = 'translate3d(0px, 45px, 0) scale(' + scale + ')';
-				e.preventDefault();
 			}
 		});
 		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);

@@ -32,36 +32,41 @@ function NonameGesture(element, options) {
 NonameGesture.prototype.handlePointerDown = function (e) {
 	this.element.setPointerCapture(e.pointerId);
 	this.isPointerDown = true;
+	this.dragDirection = '';
+	this.points = [];
 	this.pointers.push(e);
 	this.point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 	this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-	this.dragDirection = '';
-	this.points = [];
 	if (this.pointers.length === 1) {
 		this.tapCount++;
 		clearTimeout(this.singleTapTimeout);
-		if (this.tapCount === 1) {
-			this.longTapTimeout = setTimeout(() => {
-				this.tapCount = 0;
-				if (this.options.longTap) this.options.longTap();
-			}, 500);
-		}
 		// 双击两次距离不超过30
 		if (this.tapCount > 1) {
 			if (Math.abs(this.point.x - this.lastPoint.x) > 30 || Math.abs(this.point.y - this.lastPoint.y) > 30) {
 				this.tapCount = 1;
 			}
 		}
+		if (this.tapCount === 1) {
+			// 按住500ms触发长按事件
+			this.longTapTimeout = setTimeout(() => {
+				this.tapCount = 0;
+				if (this.options.longTap) {
+					this.options.longTap();
+				}
+			}, 500);
+		}
 	} else if (this.pointers.length === 2) {
 		this.tapCount = 0;
 		clearTimeout(this.longTapTimeout);
 		this.point2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
+		this.lastCenter = this.getCenter(this.point, this.point2);
 		this.lastRotate = 0;
 		this.lastScale = 1;
-		this.lastCenter = null;
 	}
 	this.lastPoint = { x: this.point.x, y: this.point.y };
-	if (this.options.pointerDown) this.options.pointerDown(e);
+	if (this.options.pointerDown) {
+		this.options.pointerDown(e);
+	}
 }
 /**
  * 处理pointermove
@@ -73,33 +78,31 @@ NonameGesture.prototype.handlePointerMove = function (e) {
 		const current = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		if (this.pointers.length === 1) {
 			this.distance = { x: current.x - this.point.x + this.lastDistance.x, y: current.y - this.point.y + this.lastDistance.y };
+			// 偏移量大于10表示移动
 			if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
 				this.tapCount = 0;
 				clearTimeout(this.longTapTimeout);
+				if (this.dragDirection === '') {
+					this.dragDirection = this.getDragDirection();
+				}
 			}
-			// swipe
-			if (this.points.length === 20) this.points.pop();
 			this.points.unshift({ x: current.x, y: current.y, timeStamp: e.timeStamp });
-			// drag
-			if (this.dragDirection === '') {
-				this.dragDirection = this.getDragDirection();
+			if (this.points.length > 20) {
+				this.points.pop();
 			}
-			e._stepX = current.x - this.lastMove.x;
-			e._stepY = current.y - this.lastMove.y;
-			e._distanceX = current.x - this.point.x + this.lastDistance.x;
-			e._distanceY = current.y - this.point.y + this.lastDistance.y;
-			e._dragDirection = this.dragDirection;
-			if (this.options.drag) this.options.drag(e);
+			// drag
+			this.handleDrag(e, current);
 			this.lastMove = { x: current.x, y: current.y };
 		} else if (this.pointers.length === 2) {
 			const current2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
-			Object.assign(e, this.handleRotate(current, current2), this.handlePinch(current, current2));
 			// rotate
-			if (this.options.rotate) this.options.rotate(e);
+			this.handleRotate(e, current, current2);
 			// pinch
-			if (this.options.pinch) this.options.pinch(e);
+			this.handlePinch(e, current, current2);
 		}
-		if (this.options.pointerMove) this.options.pointerMove(e);
+		if (this.options.pointerMove) {
+			this.options.pointerMove(e);
+		}
 	}
 }
 /**
@@ -107,22 +110,28 @@ NonameGesture.prototype.handlePointerMove = function (e) {
  * @param {PointerEvent} e
  */
 NonameGesture.prototype.handlePointerUp = function (e) {
-	this.isPointerDown = false;
 	this.handlePointers(e, 'delete');
 	if (this.pointers.length === 0) {
+		this.isPointerDown = false;
 		clearTimeout(this.longTapTimeout);
 		if (this.tapCount === 0) {
 			this.handleSwipe(e);
 		} else {
-			if (this.options.tap) this.options.tap();
+			if (this.options.tap) {
+				this.options.tap();
+			}
 			if (this.tapCount === 1) {
 				this.singleTapTimeout = setTimeout(() => {
 					this.tapCount = 0;
-					if (this.options.singleTap) this.options.singleTap();
+					if (this.options.singleTap) {
+						this.options.singleTap();
+					}
 				}, 250);
 			} else if (this.tapCount > 1) {
 				this.tapCount = 0;
-				if (this.options.doubleTap) this.options.doubleTap();
+				if (this.options.doubleTap) {
+					this.options.doubleTap();
+				}
 			}
 		}
 	} else if (this.pointers.length === 1) {
@@ -132,7 +141,9 @@ NonameGesture.prototype.handlePointerUp = function (e) {
 	}
 	e._distanceX = this.distance.x;
 	e._distanceY = this.distance.y;
-	if (this.options.pointerUp) this.options.pointerUp(e);
+	if (this.options.pointerUp) {
+		this.options.pointerUp(e);
+	}
 }
 /**
  * 处理pointercancel
@@ -143,7 +154,9 @@ NonameGesture.prototype.handlePointerCancel = function (e) {
 	this.tapCount = 0;
 	clearTimeout(this.longTapTimeout);
 	this.pointers = [];
-	if (this.options.pointerCancel) this.options.pointerCancel(e);
+	if (this.options.pointerCancel) {
+		this.options.pointerCancel(e);
+	}
 }
 /**
  * 更新或删除指针
@@ -167,88 +180,86 @@ NonameGesture.prototype.handlePointers = function (e, type) {
  */
 NonameGesture.prototype.getDragDirection = function () {
 	let dragDirection = '';
-	if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
-		if (Math.abs(this.distance.x) > Math.abs(Math.abs(this.distance.y))) {
-			if (this.distance.x > 0) {
-				dragDirection = 'right';
-			} else {
-				dragDirection = 'left';
-			}
-		} else {
-			if (this.distance.y > 0) {
-				dragDirection = 'down';
-			} else {
-				dragDirection = 'up';
-			}
-		}
+	if (Math.abs(this.distance.x) > Math.abs(this.distance.y)) {
+		dragDirection = this.distance.x > 0 ? 'right' : 'left';
+	} else {
+		dragDirection = this.distance.y > 0 ? 'down' : 'up';
 	}
 	return dragDirection;
+}
+/**
+ * 处理拖拽
+ * @param {PointerEvent} e
+ * @param {object} point
+ */
+NonameGesture.prototype.handleDrag = function (e, point) {
+	e._dragDirection = this.dragDirection;
+	e._diffX = point.x - this.lastMove.x;
+	e._diffY = point.y - this.lastMove.y;
+	e._distanceX = point.x - this.point.x + this.lastDistance.x;
+	e._distanceY = point.y - this.point.y + this.lastDistance.y;
+	if (this.options.drag) {
+		this.options.drag(e);
+	}
 }
 /**
  * 处理swipe
  * @param {PointerEvent} e
  */
 NonameGesture.prototype.handleSwipe = function (e) {
-	const swipeDistance = { x: 0, y: 0 };
-	const SWIPE_DISTANCE = 20;
-	e._hasTriggerSwipe = false;
+	let x, y;
+	// 如果200ms内移动距离大于20
 	for (const item of this.points) {
-		if (e.timeStamp - item.timeStamp > 250) break;
-		swipeDistance.x = e.clientX - item.x;
-		swipeDistance.y = e.clientY - item.y;
+		if (e.timeStamp - item.timeStamp > 200) break;
+		x = e.clientX - item.x;
+		y = e.clientY - item.y;
 	}
-	if (Math.abs(swipeDistance.x) > SWIPE_DISTANCE) {
-		if (swipeDistance.x > 0) {
-			e._swipeDirection = 'right';
-		} else {
-			e._swipeDirection = 'left'
-		}
+	if (Math.abs(x) > 20) {
+		e._swipeDirection = x > 0 ? 'right' : 'left';
 		e._hasTriggerSwipe = true;
-		if (this.options.swipe) this.options.swipe(e);
-	} else if (Math.abs(swipeDistance.y) > SWIPE_DISTANCE) {
-		if (swipeDistance.y > 0) {
-			e._swipeDirection = 'down';
-		} else {
-			e._swipeDirection = 'up'
-		}
+	} else if (Math.abs(y) > 20) {
+		e._swipeDirection = y > 0 ? 'down' : 'up';
 		e._hasTriggerSwipe = true;
-		if (this.options.swipe) this.options.swipe(e);
+	} else {
+		e._hasTriggerSwipe = false;
+	}
+	if (e._hasTriggerSwipe && this.options.swipe) {
+		this.options.swipe(e);
 	}
 }
 /**
  * 处理rotate
+ * @param {PointerEvent} e
  * @param {object} point
  * @param {object} point2
- * @returns
  */
-NonameGesture.prototype.handleRotate = function (point, point2) {
+NonameGesture.prototype.handleRotate = function (e, point, point2) {
 	let rotate = this.getAngle(point, point2) - this.getAngle(this.point, this.point2);
-	const result = {
-		_rotate: rotate - this.lastRotate
-	}
+	e._rotate = rotate - this.lastRotate;
 	this.lastRotate = rotate;
-	return result;
+	if (this.options.rotate) {
+		this.options.rotate(e);
+	}
 }
 /**
  * 处理pinch
+ * @param {PointerEvent} e
  * @param {object} point
  * @param {object} point2
- * @returns
  */
-NonameGesture.prototype.handlePinch = function (point, point2) {
+NonameGesture.prototype.handlePinch = function (e, point, point2) {
 	let scale = this.getDistance(point, point2) / this.getDistance(this.point, this.point2);
 	let center = this.getCenter(point, point2);
-	if (this.lastCenter === null) this.lastCenter = { x: center.x, y: center.y };
-	const result = {
-		_scale: scale / this.lastScale,
-		_centerX: center.x,
-		_centerY: center.y,
-		_lastCenterX: this.lastCenter.x,
-		_lastCenterY: this.lastCenter.y
-	};
+	e._scale = scale / this.lastScale;
+	e._centerX = center.x;
+	e._centerY = center.y;
+	e._lastCenterX = this.lastCenter.x;
+	e._lastCenterY = this.lastCenter.y;
 	this.lastCenter = center;
 	this.lastScale = scale;
-	return result;
+	if (this.options.pinch) {
+		this.options.pinch(e);
+	}
 }
 /**
  * 绑定事件
@@ -279,51 +290,14 @@ NonameGesture.prototype.destroy = function () {
 	this.unbindEventListener();
 }
 /**
- * 减速动画函数
- * @param {number} from 
- * @param {number} to 
- * @param {number} time 
- * @param {number} duration 
- * @returns 
- */
-NonameGesture.prototype.easeOut = function (from, to, time, duration) {
-	let change = to - from;
-	return -change * (time /= duration) * (time - 2) + from;
-}
-/**
- * 动画
- * @param {function} func 
- */
-NonameGesture.prototype.raf = function (func) {
-	const self = this;
-	let startTime;
-	let count = 0;
-	let duration = 300;
-	function step(timestamp) {
-		if (startTime === undefined) {
-			startTime = timestamp;
-		}
-		let time = timestamp - startTime;
-		if (time > duration) {
-			time = duration;
-			count++;
-		}
-		if (count <= 1) {
-			func(time);
-			self.rafId = window.requestAnimationFrame(step);
-		}
-	}
-	this.rafId = window.requestAnimationFrame(step);
-}
-/**
  * 获取旋转角度
  * @param {object} point 
  * @param {object} point2 
  * @returns 
  */
 NonameGesture.prototype.getAngle = function (point, point2) {
-	const x = point2.x - point.x;
-	const y = point2.y - point.y;
+	const x = point.x - point2.x;
+	const y = point.y - point2.y;
 	return Math.atan2(y, x) * 180 / Math.PI;
 }
 /**
@@ -333,8 +307,8 @@ NonameGesture.prototype.getAngle = function (point, point2) {
  * @returns
  */
 NonameGesture.prototype.getDistance = function (point, point2) {
-	const x = point2.x - point.x;
-	const y = point2.y - point.y;
+	const x = point.x - point2.x;
+	const y = point.y - point2.y;
 	return Math.hypot(x, y); // Math.sqrt(x * x + y * y);
 }
 /**
@@ -379,4 +353,41 @@ NonameGesture.prototype.getImgSize = function (naturalWidth, naturalHeight, maxW
 		}
 	}
 	return { width: width, height: height }
+}
+/**
+ * 减速动画函数
+ * @param {number} from 
+ * @param {number} to 
+ * @param {number} time 
+ * @param {number} duration 
+ * @returns 
+ */
+NonameGesture.prototype.easeOut = function (from, to, time, duration) {
+	let change = to - from;
+	return -change * (time /= duration) * (time - 2) + from;
+}
+/**
+ * 动画
+ * @param {function} func 
+ * @param {number} duration
+ */
+NonameGesture.prototype.raf = function (func, duration = 300) {
+	const self = this;
+	let startTime;
+	let count = 0;
+	function step(timestamp) {
+		if (startTime === undefined) {
+			startTime = timestamp;
+		}
+		let time = timestamp - startTime;
+		if (time > duration) {
+			time = duration;
+			count++;
+		}
+		if (count <= 1) {
+			func(time);
+			self.rafId = window.requestAnimationFrame(step);
+		}
+	}
+	this.rafId = window.requestAnimationFrame(step);
 }

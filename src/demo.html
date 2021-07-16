@@ -15,19 +15,36 @@
 	<div class="container">
 		<img src="images/image.jpg" alt="">
 	</div>
+	<div class="console"></div>
 
-	<!-- <script src="../dist/noname-gesture.js"></script> -->
-	<script src="js/noname-gesture.js"></script>
+	<script src="../dist/noname-gesture.js"></script>
 	<script>
 		// pinch
-		const pinchDom = document.querySelector('div.container img');
+		const pinchDom = document.querySelector('.container img');
+		const consoleDom = document.querySelector('.console');
+
 		let x, y, scale = 1;
 		const pinchGesture = new NonameGesture(pinchDom, {
+			drag: function (e) {
+				x += e._diffX;
+				y += e._diffY;
+				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
+				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
+			},
 			pinch: function (e) {
 				scale *= e._scale;
-				x -= (e._scale - 1) * (e._centerX - x) - (e._scale - 1) * result.width * 0.5 - (e._centerX - e._lastCenterX);
-				y -= (e._scale - 1) * (e._centerY - y) - (e._scale - 1) * result.height * 0.5 - (e._centerY - e._lastCenterY);
+				let diffScale = e._scale - 1;
+				// result.width * 0.5; 表示元素基点为transform-origin: center center; 等价于 transform-origin: 50% 50%;
+				// 如果元素基点为transform-origin: left top; 等价于 transform-origin: 0% 0%; 则result.width * 0; originX = 0;
+				let originX = diffScale * result.width * 0.5;
+				let originY = diffScale * result.height * 0.5;
+				x -= diffScale * (e._centerX - x) - originX - (e._centerX - e._lastCenterX);
+				y -= diffScale * (e._centerY - y) - originY - (e._centerY - e._lastCenterY);
 				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
+				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>
+					scale = ${scale.toFixed(5)}<br>diffScale = ${diffScale.toFixed(5)}<br>
+					centerX = ${e._centerX.toFixed(0)}<br>centerY = ${e._centerY.toFixed(0)}<br>
+					originX = ${originX.toFixed(5)}<br>originY = ${originY.toFixed(5)}<br>`;
 			}
 		});
 		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);

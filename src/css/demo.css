@@ -3,14 +3,23 @@
 	padding: 0;
 }
 
-body {
-	background: #EFF0F2;
-	min-height: 100vh;
-	user-select: none;
-}
-
 .container {
 	height: 100vh;
 	background: #000;
+	user-select: none;
 	touch-action: none;
+}
+
+.console {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 99;
+	padding: 5px;
+	color: #FFF;
+	font-size: 12px;
+	line-height: 18px;
+	pointer-events: none;
 }
