@@ -15,11 +15,11 @@ In a browser:
 ```javascript
 <div id="box"></div>
 const divDom = document.getElementById('box');
-new NonameGesture(divDom, {
-	touchStart: function (e) { },
-	touchMove: function (e) { },
-	touchEnd: function (e) { },
-	touchCancel: function (e) { },
+const gesture = new NonameGesture(divDom, {
+	pointerDown: function (e) { },
+	pointerMove: function (e) { },
+	pointerUp: function (e) { },
+	pointerCancel: function (e) { },
 	tap: function (e) { },
 	singleTap: function (e) { },
 	longTap: function (e) { },
@@ -30,6 +30,7 @@ new NonameGesture(divDom, {
 	pinch: function (e) { }
 });
 
+// 双指旋转
 <img id="rotate" src="xxx.png" alt="">
 const rotateDom = document.getElementById('pinch');
 let rotate = 0;
@@ -40,6 +41,7 @@ new NonameGesture(rotateDom, {
 	}
 });
 
+// 双指缩放
 <img id="pinch" src="xxx.png" alt="">
 const pinchDom = document.getElementById('pinch');
 let x = 0, y = 0, scale = 1;
@@ -62,10 +64,10 @@ pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1)'
 | :---- | :---- | :---- | :---- |
 | element | HTMLElement | null | 绑定事件的元素，必填参数 |
 | options | object | null | 配置项 |
-| options.touchStart | function | null | touchstart回调函数 |
-| options.touchMove | function | null | touchmove回调函数 |
-| options.touchEnd | function | null | touchend回调函数 |
-| options.touchCancel | function | null | touchcancel回调函数 |
+| options.pointerDown | function | null | pointerdown回调函数 |
+| options.pointerMove | function | null | pointermove回调函数 |
+| options.pointerUp | function | null | pointerup回调函数 |
+| options.pointerCancel | function | null | pointercancel回调函数 |
 | options.tap | function | null | 单击回调函数 |
 | options.singleTap | function | null | 点击回调函数，250ms延时 |
 | options.longTap | function | null | 长按回调函数 |
