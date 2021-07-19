@@ -8,6 +8,8 @@
 	background: #000;
 	user-select: none;
 	touch-action: none;
+	overflow: hidden;
+	-webkit-user-drag: none;
 }
 
 .console {

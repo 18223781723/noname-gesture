@@ -32,6 +32,9 @@
 	 * @param {PointerEvent} e 
 	 */
 	NonameGesture.prototype.handlePointerDown = function (e) {
+		// 禁止拖拽图片
+		e.preventDefault();
+		if (e.button !== 0) { return; }
 		this.element.setPointerCapture(e.pointerId);
 		this.isPointerDown = true;
 		this.dragDirection = '';
@@ -75,36 +78,35 @@
 	 * @param {PointerEvent} e
 	 */
 	NonameGesture.prototype.handlePointerMove = function (e) {
-		if (this.isPointerDown) {
-			this.handlePointers(e, 'update');
-			const current = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-			if (this.pointers.length === 1) {
-				this.distance = { x: current.x - this.point.x + this.lastDistance.x, y: current.y - this.point.y + this.lastDistance.y };
-				// 偏移量大于10表示移动
-				if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
-					this.tapCount = 0;
-					clearTimeout(this.longTapTimeout);
-					if (this.dragDirection === '') {
-						this.dragDirection = this.getDragDirection();
-					}
+		if (!this.isPointerDown) { return; }
+		this.handlePointers(e, 'update');
+		const current = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+		if (this.pointers.length === 1) {
+			this.distance = { x: current.x - this.point.x + this.lastDistance.x, y: current.y - this.point.y + this.lastDistance.y };
+			// 偏移量大于10表示移动
+			if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
+				this.tapCount = 0;
+				clearTimeout(this.longTapTimeout);
+				if (this.dragDirection === '') {
+					this.dragDirection = this.getDragDirection();
 				}
-				this.points.unshift({ x: current.x, y: current.y, timeStamp: e.timeStamp });
-				if (this.points.length > 20) {
-					this.points.pop();
-				}
-				// drag
-				this.handleDrag(e, current);
-				this.lastMove = { x: current.x, y: current.y };
-			} else if (this.pointers.length === 2) {
-				const current2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
-				// rotate
-				this.handleRotate(e, current, current2);
-				// pinch
-				this.handlePinch(e, current, current2);
 			}
-			if (this.options.pointerMove) {
-				this.options.pointerMove(e);
+			this.points.unshift({ x: current.x, y: current.y, timeStamp: e.timeStamp });
+			if (this.points.length > 20) {
+				this.points.pop();
 			}
+			// drag
+			this.handleDrag(e, current);
+			this.lastMove = { x: current.x, y: current.y };
+		} else if (this.pointers.length === 2) {
+			const current2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
+			// rotate
+			this.handleRotate(e, current, current2);
+			// pinch
+			this.handlePinch(e, current, current2);
+		}
+		if (this.options.pointerMove) {
+			this.options.pointerMove(e);
 		}
 	}
 	/**
@@ -112,6 +114,7 @@
 	 * @param {PointerEvent} e
 	 */
 	NonameGesture.prototype.handlePointerUp = function (e) {
+		if (!this.isPointerDown) { return; }
 		this.handlePointers(e, 'delete');
 		if (this.pointers.length === 0) {
 			this.isPointerDown = false;
@@ -393,6 +396,7 @@
 		}
 		this.rafId = window.requestAnimationFrame(step);
 	}
+
 	if (typeof define === 'function' && define.amd) {
 		define(function () { return NonameGesture; });
 	} else if (typeof module === 'object' && typeof exports === 'object') {
