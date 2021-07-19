@@ -39,10 +39,11 @@ NonameGesture.prototype.handlePointerDown = function (e) {
 	this.points = [];
 	this.pointers.push(e);
 	this.point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-	this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 	if (this.pointers.length === 1) {
 		this.tapCount++;
 		clearTimeout(this.singleTapTimeout);
+		this.distance = { x: 0, y: 0 };
+		this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		// 双击两次距离不超过30
 		if (this.tapCount > 1) {
 			if (Math.abs(this.point.x - this.lastPoint.x) > 30 || Math.abs(this.point.y - this.lastPoint.y) > 30) {
@@ -62,6 +63,7 @@ NonameGesture.prototype.handlePointerDown = function (e) {
 		this.tapCount = 0;
 		clearTimeout(this.longTapTimeout);
 		this.point2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
+		this.lastDistance = { x: this.distance.x, y: this.distance.y };
 		this.lastCenter = this.getCenter(this.point, this.point2);
 		this.lastRotate = 0;
 		this.lastScale = 1;
@@ -116,6 +118,7 @@ NonameGesture.prototype.handlePointerUp = function (e) {
 	this.handlePointers(e, 'delete');
 	if (this.pointers.length === 0) {
 		this.isPointerDown = false;
+		e._hasTriggerSwipe = false;
 		clearTimeout(this.longTapTimeout);
 		if (this.tapCount === 0) {
 			this.handleSwipe(e);
@@ -140,7 +143,6 @@ NonameGesture.prototype.handlePointerUp = function (e) {
 	} else if (this.pointers.length === 1) {
 		this.point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-		this.lastDistance = { x: this.distance.x, y: this.distance.y };
 	}
 	e._distanceX = this.distance.x;
 	e._distanceY = this.distance.y;
@@ -223,8 +225,6 @@ NonameGesture.prototype.handleSwipe = function (e) {
 	} else if (Math.abs(y) > 20) {
 		e._swipeDirection = y > 0 ? 'down' : 'up';
 		e._hasTriggerSwipe = true;
-	} else {
-		e._hasTriggerSwipe = false;
 	}
 	if (e._hasTriggerSwipe && this.options.swipe) {
 		this.options.swipe(e);

@@ -190,7 +190,7 @@
 				if (!e._hasTriggerSwipe) {
 					if (e._distanceX < 0) {
 						swipeX = e._distanceX <= -50 ? -140 : 0;
-					} else {
+					} else if (e._distanceX > 0) {
 						swipeX = e._distanceX > 50 ? 0 : -140;
 					}
 					to = swipeX;
