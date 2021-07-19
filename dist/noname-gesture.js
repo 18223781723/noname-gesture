@@ -57,7 +57,7 @@
 				this.longTapTimeout = setTimeout(() => {
 					this.tapCount = 0;
 					if (this.options.longTap) {
-						this.options.longTap();
+						this.options.longTap(e);
 					}
 				}, 500);
 			}
@@ -126,19 +126,19 @@
 				this.handleSwipe(e);
 			} else {
 				if (this.options.tap) {
-					this.options.tap();
+					this.options.tap(e);
 				}
 				if (this.tapCount === 1) {
 					this.singleTapTimeout = setTimeout(() => {
 						this.tapCount = 0;
 						if (this.options.singleTap) {
-							this.options.singleTap();
+							this.options.singleTap(e);
 						}
 					}, 250);
 				} else if (this.tapCount > 1) {
 					this.tapCount = 0;
 					if (this.options.doubleTap) {
-						this.options.doubleTap();
+						this.options.doubleTap(e);
 					}
 				}
 			}
