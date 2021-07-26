@@ -16,10 +16,10 @@ In a browser:
 <div id="box"></div>
 const divDom = document.getElementById('box');
 const gesture = new NonameGesture(divDom, {
-	pointerDown: function (e) { },
-	pointerMove: function (e) { },
-	pointerUp: function (e) { },
-	pointerCancel: function (e) { },
+	pointerdown: function (e) { },
+	pointermove: function (e) { },
+	pointerup: function (e) { },
+	pointercancel: function (e) { },
 	tap: function (e) { },
 	singleTap: function (e) { },
 	longTap: function (e) { },
@@ -64,10 +64,10 @@ pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1)'
 | :---- | :---- | :---- | :---- |
 | element | HTMLElement | null | 绑定事件的元素，必填参数 |
 | options | object | null | 配置项 |
-| options.pointerDown | function | null | pointerdown回调函数 |
-| options.pointerMove | function | null | pointermove回调函数 |
-| options.pointerUp | function | null | pointerup回调函数 |
-| options.pointerCancel | function | null | pointercancel回调函数 |
+| options.pointerdown | function | null | pointerdown回调函数 |
+| options.pointermove | function | null | pointermove回调函数 |
+| options.pointerup | function | null | pointerup回调函数 |
+| options.pointercancel | function | null | pointercancel回调函数 |
 | options.tap | function | null | 单击回调函数 |
 | options.singleTap | function | null | 点击回调函数，250ms延时 |
 | options.longTap | function | null | 长按回调函数 |
