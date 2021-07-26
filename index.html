@@ -186,7 +186,7 @@
 					swipeDom.style.transform = 'translate3d(' + x + 'px, 0px , 0px)';
 				}, duration); */
 			},
-			pointerUp: function (e) {
+			pointerup: function (e) {
 				if (!e._hasTriggerSwipe) {
 					if (e._distanceX < 0) {
 						swipeX = e._distanceX <= -50 ? -140 : 0;

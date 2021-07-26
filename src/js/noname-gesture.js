@@ -19,7 +19,7 @@ function NonameGesture(element, options) {
 	this.points = []; // 移动位置数组 长度20 用于计算是否触发swipe
 	this.pointers = []; // 触摸点数组
 	this.dragDirection = ''; // 拖拽方向
-	this.isPointerDown = false; // 按下标识
+	this.isPointerdown = false; // 按下标识
 	this.singleTapTimeout = null;
 	this.longTapTimeout = null;
 	this.rafId = null; // 动画id 用于停止动画
@@ -29,12 +29,10 @@ function NonameGesture(element, options) {
  * 处理pointerdown
  * @param {PointerEvent} e 
  */
-NonameGesture.prototype.handlePointerDown = function (e) {
-	// 禁止拖拽图片
-	e.preventDefault();
+NonameGesture.prototype.handlePointerdown = function (e) {
 	if (e.button !== 0) { return; }
 	this.element.setPointerCapture(e.pointerId);
-	this.isPointerDown = true;
+	this.isPointerdown = true;
 	this.dragDirection = '';
 	this.points = [];
 	this.pointers.push(e);
@@ -69,16 +67,16 @@ NonameGesture.prototype.handlePointerDown = function (e) {
 		this.lastScale = 1;
 	}
 	this.lastPoint = { x: this.point.x, y: this.point.y };
-	if (this.options.pointerDown) {
-		this.options.pointerDown(e);
+	if (this.options.pointerdown) {
+		this.options.pointerdown(e);
 	}
 }
 /**
  * 处理pointermove
  * @param {PointerEvent} e
  */
-NonameGesture.prototype.handlePointerMove = function (e) {
-	if (!this.isPointerDown) { return; }
+NonameGesture.prototype.handlePointermove = function (e) {
+	if (!this.isPointerdown) { return; }
 	this.handlePointers(e, 'update');
 	const current = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 	if (this.pointers.length === 1) {
@@ -105,19 +103,20 @@ NonameGesture.prototype.handlePointerMove = function (e) {
 		// pinch
 		this.handlePinch(e, current, current2);
 	}
-	if (this.options.pointerMove) {
-		this.options.pointerMove(e);
+	if (this.options.pointermove) {
+		this.options.pointermove(e);
 	}
+	e.preventDefault();
 }
 /**
  * 处理pointerup
  * @param {PointerEvent} e
  */
-NonameGesture.prototype.handlePointerUp = function (e) {
-	if (!this.isPointerDown) { return; }
+NonameGesture.prototype.handlePointerup = function (e) {
+	if (!this.isPointerdown) { return; }
 	this.handlePointers(e, 'delete');
 	if (this.pointers.length === 0) {
-		this.isPointerDown = false;
+		this.isPointerdown = false;
 		e._hasTriggerSwipe = false;
 		clearTimeout(this.longTapTimeout);
 		if (this.tapCount === 0) {
@@ -146,21 +145,21 @@ NonameGesture.prototype.handlePointerUp = function (e) {
 	}
 	e._distanceX = this.distance.x;
 	e._distanceY = this.distance.y;
-	if (this.options.pointerUp) {
-		this.options.pointerUp(e);
+	if (this.options.pointerup) {
+		this.options.pointerup(e);
 	}
 }
 /**
  * 处理pointercancel
  * @param {PointerEvent} e
  */
-NonameGesture.prototype.handlePointerCancel = function (e) {
-	this.isPointerDown = false;
+NonameGesture.prototype.handlePointercancel = function (e) {
+	this.isPointerdown = false;
 	this.tapCount = 0;
 	clearTimeout(this.longTapTimeout);
 	this.pointers = [];
-	if (this.options.pointerCancel) {
-		this.options.pointerCancel(e);
+	if (this.options.pointercancel) {
+		this.options.pointercancel(e);
 	}
 }
 /**
@@ -268,23 +267,23 @@ NonameGesture.prototype.handlePinch = function (e, point, point2) {
  * 绑定事件
  */
 NonameGesture.prototype.bindEventListener = function () {
-	this.handlePointerDown = this.handlePointerDown.bind(this);
-	this.handlePointerMove = this.handlePointerMove.bind(this);
-	this.handlePointerUp = this.handlePointerUp.bind(this);
-	this.handlePointerCancel = this.handlePointerCancel.bind(this);
-	this.element.addEventListener('pointerdown', this.handlePointerDown);
-	this.element.addEventListener('pointermove', this.handlePointerMove);
-	this.element.addEventListener('pointerup', this.handlePointerUp);
-	this.element.addEventListener('pointercancel', this.handlePointerCancel);
+	this.handlePointerdown = this.handlePointerdown.bind(this);
+	this.handlePointermove = this.handlePointermove.bind(this);
+	this.handlePointerup = this.handlePointerup.bind(this);
+	this.handlePointercancel = this.handlePointercancel.bind(this);
+	this.element.addEventListener('pointerdown', this.handlePointerdown);
+	this.element.addEventListener('pointermove', this.handlePointermove);
+	this.element.addEventListener('pointerup', this.handlePointerup);
+	this.element.addEventListener('pointercancel', this.handlePointercancel);
 }
 /**
  * 解绑事件
  */
 NonameGesture.prototype.unbindEventListener = function () {
-	this.element.removeEventListener('pointerdown', this.handlePointerDown);
-	this.element.removeEventListener('pointermove', this.handlePointerMove);
-	this.element.removeEventListener('pointerup', this.handlePointerUp);
-	this.element.removeEventListener('pointercancel', this.handlePointerCancel);
+	this.element.removeEventListener('pointerdown', this.handlePointerdown);
+	this.element.removeEventListener('pointermove', this.handlePointermove);
+	this.element.removeEventListener('pointerup', this.handlePointerup);
+	this.element.removeEventListener('pointercancel', this.handlePointercancel);
 }
 /**
  * 销毁

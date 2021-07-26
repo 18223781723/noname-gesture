@@ -9,6 +9,9 @@
 	user-select: none;
 	touch-action: none;
 	overflow: hidden;
+}
+
+.container img {
 	-webkit-user-drag: none;
 }
 
