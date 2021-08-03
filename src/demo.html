@@ -13,7 +13,7 @@
 
 <body>
 	<div class="container">
-		<img src="images/image.jpg" alt="">
+		<img alt="">
 	</div>
 	<div class="console"></div>
 
@@ -22,8 +22,8 @@
 		// pinch
 		const pinchDom = document.querySelector('.container img');
 		const consoleDom = document.querySelector('.console');
-
-		let x, y, scale = 1;
+		// 全局变量
+		let result, x, y, scale = 1;
 		const pinchGesture = new NonameGesture(pinchDom, {
 			drag: function (e) {
 				x += e._diffX;
@@ -32,27 +32,38 @@
 				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
 			},
 			pinch: function (e) {
+				// 计算图片中心偏移量，默认transform-origin: 50% 50%
+				// 如果transform-origin: 30% 40%，那origin.x = (ratio - 1) * result.width * 0.3
+				// origin.y = (ratio - 1) * result.height * 0.4
+				// 如果通过修改宽高或使用transform缩放，但将transform-origin设置为左上角时。
+				// 可以不用计算origin，因为(ratio - 1) * result.width * 0 = 0
+				const origin = {
+					x: (e._scale - 1) * result.width * 0.5,
+					y: (e._scale - 1) * result.height * 0.5
+				};
+				x -= (e._scale - 1) * (e._centerX - x) - origin.x - (e._centerX - e._lastCenterX);
+				y -= (e._scale - 1) * (e._centerY - y) - origin.y - (e._centerY - e._lastCenterY);
+				// 缩放比例，计算宽高width *= e._scale; height *= e._scale;
 				scale *= e._scale;
-				let diffScale = e._scale - 1;
-				// result.width * 0.5; 表示元素基点为transform-origin: center center; 等价于 transform-origin: 50% 50%;
-				// 如果元素基点为transform-origin: left top; 等价于 transform-origin: 0% 0%; 则result.width * 0; originX = 0;
-				let originX = diffScale * result.width * 0.5;
-				let originY = diffScale * result.height * 0.5;
-				x -= diffScale * (e._centerX - x) - originX - (e._centerX - e._lastCenterX);
-				y -= diffScale * (e._centerY - y) - originY - (e._centerY - e._lastCenterY);
 				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
 				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>
-					scale = ${scale.toFixed(5)}<br>diffScale = ${diffScale.toFixed(5)}<br>
+					scale = ${scale.toFixed(5)}<br>
 					centerX = ${e._centerX.toFixed(0)}<br>centerY = ${e._centerY.toFixed(0)}<br>
-					originX = ${originX.toFixed(5)}<br>originY = ${originY.toFixed(5)}<br>`;
+					originX = ${origin.x.toFixed(5)}<br>originY = ${origin.y.toFixed(5)}<br>`;
 			}
 		});
-		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);
-		pinchDom.style.width = result.width + 'px';
-		pinchDom.style.height = result.height + 'px';
-		x = (window.innerWidth - result.width) * 0.5;
-		y = (window.innerHeight - result.height) * 0.5;
-		pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1)';
+		// 由于图片是异步加载，需要在load方法里获取naturalWidth，naturalHeight
+		pinchDom.addEventListener('load', function () {
+			result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);
+			pinchDom.style.width = result.width + 'px';
+			pinchDom.style.height = result.height + 'px';
+			x = (window.innerWidth - result.width) * 0.5;
+			y = (window.innerHeight - result.height) * 0.5;
+			pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1)';
+		});
+		// 图片赋值需放在load回调之后，因为图片缓存后读取很快，有可能不执行load回调
+		pinchDom.src = 'images/liya.jpg';
+
 	</script>
 </body>
 

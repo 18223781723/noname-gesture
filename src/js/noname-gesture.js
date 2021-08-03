@@ -1,28 +1,28 @@
 /**
  * 使用PointerEvent实现的手势库
- * @param {HTMLElement} element
- * @param {object} options
+ * @param {HTMLElement} element 绑定事件的元素
+ * @param {object} options 配置项
  */
 function NonameGesture(element, options) {
 	this.element = element; // 绑定事件的元素
 	this.options = options; // 配置项
-	this.point = { x: 0, y: 0 }; // 第一根手指位置
-	this.point2 = { x: 0, y: 0 }; // 第二根手指位置
-	this.lastPoint = { x: 0, y: 0 }; // 上一次手指位置
+	this.point1 = { x: 0, y: 0 }; // 第一个触摸点位置
+	this.point2 = { x: 0, y: 0 }; // 第二个触摸点位置
+	this.lastPoint1 = { x: 0, y: 0 }; // 上一次第一个触摸点位置
+	this.lastPoint2 = { x: 0, y: 0 }; // 上一次第二个触摸点位置
 	this.distance = { x: 0, y: 0 }; // 移动距离
 	this.lastDistance = { x: 0, y: 0 }; // 上一次移动距离
 	this.lastMove = { x: 0, y: 0 }; // 上一次移动位置
 	this.lastCenter = { x: 0, y: 0 }; // 上一次中心位置
-	this.lastRotate = 0; // 上一次旋转角度
-	this.lastScale = 1; // 上一次缩放比例
 	this.tapCount = 0; // 点击计数器
 	this.points = []; // 移动位置数组 长度20 用于计算是否触发swipe
 	this.pointers = []; // 触摸点数组
 	this.dragDirection = ''; // 拖拽方向
 	this.isPointerdown = false; // 按下标识
-	this.singleTapTimeout = null;
-	this.longTapTimeout = null;
+	this.singleTapTimeout = null; // 单击延时器
+	this.longTapTimeout = null; // 长按延时器
 	this.rafId = null; // 动画id 用于停止动画
+	// 绑定事件
 	this.bindEventListener();
 }
 /**
@@ -30,21 +30,23 @@ function NonameGesture(element, options) {
  * @param {PointerEvent} e 
  */
 NonameGesture.prototype.handlePointerdown = function (e) {
-	if (e.button !== 0) { return; }
-	this.element.setPointerCapture(e.pointerId);
-	this.isPointerdown = true;
-	this.dragDirection = '';
-	this.points = [];
+	if (e.button !== 0) {
+		return;
+	}
 	this.pointers.push(e);
-	this.point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+	this.point1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 	if (this.pointers.length === 1) {
+		this.isPointerdown = true;
+		this.element.setPointerCapture(e.pointerId);
 		this.tapCount++;
+		this.dragDirection = '';
+		this.points.length = 0;
 		clearTimeout(this.singleTapTimeout);
 		this.distance = { x: 0, y: 0 };
 		this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		// 双击两次距离不超过30
 		if (this.tapCount > 1) {
-			if (Math.abs(this.point.x - this.lastPoint.x) > 30 || Math.abs(this.point.y - this.lastPoint.y) > 30) {
+			if (Math.abs(this.point1.x - this.lastPoint1.x) > 30 || Math.abs(this.point1.y - this.lastPoint1.y) > 30) {
 				this.tapCount = 1;
 			}
 		}
@@ -61,12 +63,11 @@ NonameGesture.prototype.handlePointerdown = function (e) {
 		this.tapCount = 0;
 		clearTimeout(this.longTapTimeout);
 		this.point2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
+		this.lastPoint2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
 		this.lastDistance = { x: this.distance.x, y: this.distance.y };
-		this.lastCenter = this.getCenter(this.point, this.point2);
-		this.lastRotate = 0;
-		this.lastScale = 1;
+		this.lastCenter = this.getCenter(this.point1, this.point2);
 	}
-	this.lastPoint = { x: this.point.x, y: this.point.y };
+	this.lastPoint1 = { x: this.point1.x, y: this.point1.y };
 	if (this.options.pointerdown) {
 		this.options.pointerdown(e);
 	}
@@ -76,11 +77,13 @@ NonameGesture.prototype.handlePointerdown = function (e) {
  * @param {PointerEvent} e
  */
 NonameGesture.prototype.handlePointermove = function (e) {
-	if (!this.isPointerdown) { return; }
+	if (!this.isPointerdown) {
+		return;
+	}
 	this.handlePointers(e, 'update');
-	const current = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+	const current1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 	if (this.pointers.length === 1) {
-		this.distance = { x: current.x - this.point.x + this.lastDistance.x, y: current.y - this.point.y + this.lastDistance.y };
+		this.distance = { x: current1.x - this.point1.x + this.lastDistance.x, y: current1.y - this.point1.y + this.lastDistance.y };
 		// 偏移量大于10表示移动
 		if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
 			this.tapCount = 0;
@@ -89,23 +92,26 @@ NonameGesture.prototype.handlePointermove = function (e) {
 				this.dragDirection = this.getDragDirection();
 			}
 		}
-		this.points.unshift({ x: current.x, y: current.y, timeStamp: e.timeStamp });
+		this.points.unshift({ x: current1.x, y: current1.y, timeStamp: e.timeStamp });
 		if (this.points.length > 20) {
 			this.points.pop();
 		}
 		// drag
-		this.handleDrag(e, current);
-		this.lastMove = { x: current.x, y: current.y };
+		this.handleDrag(e, current1);
+		this.lastMove = { x: current1.x, y: current1.y };
 	} else if (this.pointers.length === 2) {
 		const current2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
 		// rotate
-		this.handleRotate(e, current, current2);
+		this.handleRotate(e, current1, current2);
 		// pinch
-		this.handlePinch(e, current, current2);
+		this.handlePinch(e, current1, current2);
+		this.lastPoint1 = { x: current1.x, y: current1.y };
+		this.lastPoint2 = { x: current2.x, y: current2.y };
 	}
 	if (this.options.pointermove) {
 		this.options.pointermove(e);
 	}
+	// 阻止默认行为，例如阻止图片拖拽
 	e.preventDefault();
 }
 /**
@@ -113,7 +119,9 @@ NonameGesture.prototype.handlePointermove = function (e) {
  * @param {PointerEvent} e
  */
 NonameGesture.prototype.handlePointerup = function (e) {
-	if (!this.isPointerdown) { return; }
+	if (!this.isPointerdown) {
+		return;
+	}
 	this.handlePointers(e, 'delete');
 	if (this.pointers.length === 0) {
 		this.isPointerdown = false;
@@ -140,7 +148,7 @@ NonameGesture.prototype.handlePointerup = function (e) {
 			}
 		}
 	} else if (this.pointers.length === 1) {
-		this.point = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+		this.point1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 	}
 	e._distanceX = this.distance.x;
@@ -157,7 +165,7 @@ NonameGesture.prototype.handlePointercancel = function (e) {
 	this.isPointerdown = false;
 	this.tapCount = 0;
 	clearTimeout(this.longTapTimeout);
-	this.pointers = [];
+	this.pointers.length = 0;
 	if (this.options.pointercancel) {
 		this.options.pointercancel(e);
 	}
@@ -200,8 +208,8 @@ NonameGesture.prototype.handleDrag = function (e, point) {
 	e._dragDirection = this.dragDirection;
 	e._diffX = point.x - this.lastMove.x;
 	e._diffY = point.y - this.lastMove.y;
-	e._distanceX = point.x - this.point.x + this.lastDistance.x;
-	e._distanceY = point.y - this.point.y + this.lastDistance.y;
+	e._distanceX = point.x - this.point1.x + this.lastDistance.x;
+	e._distanceY = point.y - this.point1.y + this.lastDistance.y;
 	if (this.options.drag) {
 		this.options.drag(e);
 	}
@@ -232,13 +240,11 @@ NonameGesture.prototype.handleSwipe = function (e) {
 /**
  * 处理rotate
  * @param {PointerEvent} e
- * @param {object} point
- * @param {object} point2
+ * @param {object} a
+ * @param {object} b
  */
-NonameGesture.prototype.handleRotate = function (e, point, point2) {
-	let rotate = this.getAngle(point, point2) - this.getAngle(this.point, this.point2);
-	e._rotate = rotate - this.lastRotate;
-	this.lastRotate = rotate;
+NonameGesture.prototype.handleRotate = function (e, a, b) {
+	e._rotate = this.getAngle(a, b) - this.getAngle(this.lastPoint1, this.lastPoint2);
 	if (this.options.rotate) {
 		this.options.rotate(e);
 	}
@@ -246,19 +252,17 @@ NonameGesture.prototype.handleRotate = function (e, point, point2) {
 /**
  * 处理pinch
  * @param {PointerEvent} e
- * @param {object} point
- * @param {object} point2
+ * @param {object} a
+ * @param {object} b
  */
-NonameGesture.prototype.handlePinch = function (e, point, point2) {
-	let scale = this.getDistance(point, point2) / this.getDistance(this.point, this.point2);
-	let center = this.getCenter(point, point2);
-	e._scale = scale / this.lastScale;
+NonameGesture.prototype.handlePinch = function (e, a, b) {
+	e._scale = this.getDistance(a, b) / this.getDistance(this.lastPoint1, this.lastPoint2);
+	let center = this.getCenter(a, b);
 	e._centerX = center.x;
 	e._centerY = center.y;
 	e._lastCenterX = this.lastCenter.x;
 	e._lastCenterY = this.lastCenter.y;
 	this.lastCenter = center;
-	this.lastScale = scale;
 	if (this.options.pinch) {
 		this.options.pinch(e);
 	}
@@ -293,35 +297,35 @@ NonameGesture.prototype.destroy = function () {
 }
 /**
  * 获取旋转角度
- * @param {object} point 
- * @param {object} point2 
+ * @param {object} a 
+ * @param {object} b 
  * @returns 
  */
-NonameGesture.prototype.getAngle = function (point, point2) {
-	const x = point.x - point2.x;
-	const y = point.y - point2.y;
+NonameGesture.prototype.getAngle = function (a, b) {
+	const x = a.x - b.x;
+	const y = a.y - b.y;
 	return Math.atan2(y, x) * 180 / Math.PI;
 }
 /**
  * 获取两点距离
- * @param {object} point
- * @param {object} point2
+ * @param {object} a
+ * @param {object} b
  * @returns
  */
-NonameGesture.prototype.getDistance = function (point, point2) {
-	const x = point.x - point2.x;
-	const y = point.y - point2.y;
+NonameGesture.prototype.getDistance = function (a, b) {
+	const x = a.x - b.x;
+	const y = a.y - b.y;
 	return Math.hypot(x, y); // Math.sqrt(x * x + y * y);
 }
 /**
  * 获取两点中心点
- * @param {object} point
- * @param {object} point2
+ * @param {object} a
+ * @param {object} b
  * @returns
  */
-NonameGesture.prototype.getCenter = function (point, point2) {
-	const x = (point.x + point2.x) / 2;
-	const y = (point.y + point2.y) / 2;
+NonameGesture.prototype.getCenter = function (a, b) {
+	const x = (a.x + b.x) / 2;
+	const y = (a.y + b.y) / 2;
 	return { x: x, y: y }
 }
 /**
@@ -336,7 +340,7 @@ NonameGesture.prototype.getImgSize = function (naturalWidth, naturalHeight, maxW
 	const imgRatio = naturalWidth / naturalHeight;
 	const maxRatio = maxWidth / maxHeight;
 	let width, height;
-	// 如果图片实际宽高比例 >= 屏幕宽高比例
+	// 如果图片实际宽高比例 >= 显示宽高比例
 	if (imgRatio >= maxRatio) {
 		if (naturalWidth > maxWidth) {
 			width = maxWidth;

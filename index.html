@@ -46,7 +46,7 @@
 	<div class="swipe">
 		<div class="swipe-item">
 			<div class="box">
-				<img class="avatar" src="src/images/image.jpg" alt="">
+				<img class="avatar" src="src/images/baiyuekui.jpg" alt="">
 				<div class="content">
 					<p class="name">白月魁</p>
 					<p class="text">再拖下去，来交租的会越来越多，你们躲远点</p>
@@ -63,13 +63,13 @@
 	<!-- rotate -->
 	<h4>rotate</h4>
 	<div class="rotate">
-		<img src="src/images/image.jpg" alt="">
+		<img src="src/images/liya.jpg" alt="">
 	</div>
 
 	<!-- pinch -->
 	<h4>pinch</h4>
 	<div class="pinch">
-		<img src="src/images/image.jpg" alt="">
+		<img src="src/images/liya.jpg" alt="">
 	</div>
 
 	<!-- demo -->
@@ -77,9 +77,8 @@
 		<a href="src/demo.html">综合例子</a>
 	</div>
 
-
-	<!-- <script src="src/js/noname-gesture.js"></script> -->
-	<script src="dist/noname-gesture.min.js"></script>
+	<script src="src/js/noname-gesture.js"></script>
+	<!-- <script src="dist/noname-gesture.min.js"></script> -->
 
 	<script>
 		// tap
@@ -142,7 +141,7 @@
 
 		// drag
 		const moveDom = document.querySelector('button.drag')
-		let moveX = window.innerWidth - 44;
+		let moveX = 0;
 		let moveY = window.innerHeight - 150;
 		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
 		new NonameGesture(moveDom, {
@@ -216,13 +215,9 @@
 		const pinchGesture = new NonameGesture(pinchDom, {
 			pinch: function (e) {
 				scale *= e._scale;
-				pinchDom.style.transform = 'translate3d(0px, 45px, 0) scale(' + scale + ')';
+				pinchDom.style.transform = 'scale(' + scale + ')';
 			}
 		});
-		const result = pinchGesture.getImgSize(pinchDom.naturalWidth, pinchDom.naturalHeight, window.innerWidth, window.innerHeight);
-		pinchDom.style.width = result.width + 'px';
-		pinchDom.style.height = result.height + 'px';
-		pinchDom.style.transform = 'translate3d(0px, 45px, 0px) scale(1)';
 	</script>
 </body>
 
