@@ -1,5 +1,5 @@
 # noname-gesture
-基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放。兼容主流浏览器，上手简单，零依赖。
+基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放，鼠标滚轮缩放。兼容主流浏览器，上手简单，零依赖。
 
 Demo: http://nonamegesture.codeman.top
 
@@ -20,6 +20,7 @@ const gesture = new NonameGesture(divDom, {
 	pointermove: function (e) { },
 	pointerup: function (e) { },
 	pointercancel: function (e) { },
+	wheel: function (e) { },
 	tap: function (e) { },
 	singleTap: function (e) { },
 	longTap: function (e) { },
@@ -68,6 +69,7 @@ pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1)'
 | options.pointermove | function | null | pointermove回调函数 |
 | options.pointerup | function | null | pointerup回调函数 |
 | options.pointercancel | function | null | pointercancel回调函数 |
+| options.wheel | function | null | 鼠标滚轮回调函数 |
 | options.tap | function | null | 单击回调函数 |
 | options.singleTap | function | null | 点击回调函数，250ms延时 |
 | options.longTap | function | null | 长按回调函数 |

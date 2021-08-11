@@ -32,7 +32,7 @@
 	 * @param {PointerEvent} e 
 	 */
 	NonameGesture.prototype.handlePointerdown = function (e) {
-		if (e.button !== 0) {
+		if (e.pointerType === 'mouse' && e.button !== 0) {
 			return;
 		}
 		this.pointers.push(e);
@@ -69,7 +69,7 @@
 			this.lastDistance = { x: this.distance.x, y: this.distance.y };
 			this.lastCenter = this.getCenter(this.point1, this.point2);
 		}
-		this.lastPoint1 = { x: this.point1.x, y: this.point1.y };
+		this.lastPoint1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		if (this.options.pointerdown) {
 			this.options.pointerdown(e);
 		}
@@ -175,7 +175,7 @@
 	/**
 	 * 更新或删除指针
 	 * @param {PointerEvent} e
-	 * @param {string} type
+	 * @param {string} type update delete
 	 */
 	NonameGesture.prototype.handlePointers = function (e, type) {
 		for (let i = 0; i < this.pointers.length; i++) {
@@ -204,14 +204,14 @@
 	/**
 	 * 处理拖拽
 	 * @param {PointerEvent} e
-	 * @param {object} point
+	 * @param {object} a 第一个点的位置
 	 */
-	NonameGesture.prototype.handleDrag = function (e, point) {
+	NonameGesture.prototype.handleDrag = function (e, a) {
 		e._dragDirection = this.dragDirection;
-		e._diffX = point.x - this.lastMove.x;
-		e._diffY = point.y - this.lastMove.y;
-		e._distanceX = point.x - this.point1.x + this.lastDistance.x;
-		e._distanceY = point.y - this.point1.y + this.lastDistance.y;
+		e._diffX = a.x - this.lastMove.x;
+		e._diffY = a.y - this.lastMove.y;
+		e._distanceX = a.x - this.point1.x + this.lastDistance.x;
+		e._distanceY = a.y - this.point1.y + this.lastDistance.y;
 		if (this.options.drag) {
 			this.options.drag(e);
 		}
@@ -221,12 +221,15 @@
 	 * @param {PointerEvent} e
 	 */
 	NonameGesture.prototype.handleSwipe = function (e) {
-		let x, y;
+		let x = 0, y = 0;
 		// 如果200ms内移动距离大于20
 		for (const item of this.points) {
-			if (e.timeStamp - item.timeStamp > 200) break;
-			x = e.clientX - item.x;
-			y = e.clientY - item.y;
+			if (e.timeStamp - item.timeStamp < 200) {
+				x = e.clientX - item.x;
+				y = e.clientY - item.y;
+			} else {
+				break;
+			};
 		}
 		if (Math.abs(x) > 20) {
 			e._swipeDirection = x > 0 ? 'right' : 'left';
@@ -242,8 +245,8 @@
 	/**
 	 * 处理rotate
 	 * @param {PointerEvent} e
-	 * @param {object} a
-	 * @param {object} b
+	 * @param {object} a 第一个点的位置
+	 * @param {object} b 第二个点的位置
 	 */
 	NonameGesture.prototype.handleRotate = function (e, a, b) {
 		e._rotate = this.getAngle(a, b) - this.getAngle(this.lastPoint1, this.lastPoint2);
@@ -254,8 +257,8 @@
 	/**
 	 * 处理pinch
 	 * @param {PointerEvent} e
-	 * @param {object} a
-	 * @param {object} b
+	 * @param {object} a 第一个点的位置
+	 * @param {object} b 第二个点的位置
 	 */
 	NonameGesture.prototype.handlePinch = function (e, a, b) {
 		e._scale = this.getDistance(a, b) / this.getDistance(this.lastPoint1, this.lastPoint2);
@@ -270,6 +273,19 @@
 		}
 	}
 	/**
+	 * 鼠标滚轮缩放
+	 * @param {WheelEvent} e 
+	 */
+	NonameGesture.prototype.handleWheel = function (e) {
+		e._scale = 1.1;
+		if (e.deltaY > 0) {
+			e._scale = 0.9;
+		}
+		if (this.options.wheel) {
+			this.options.wheel(e);
+		}
+	}
+	/**
 	 * 绑定事件
 	 */
 	NonameGesture.prototype.bindEventListener = function () {
@@ -277,10 +293,12 @@
 		this.handlePointermove = this.handlePointermove.bind(this);
 		this.handlePointerup = this.handlePointerup.bind(this);
 		this.handlePointercancel = this.handlePointercancel.bind(this);
+		this.handleWheel = this.handleWheel.bind(this);
 		this.element.addEventListener('pointerdown', this.handlePointerdown);
 		this.element.addEventListener('pointermove', this.handlePointermove);
 		this.element.addEventListener('pointerup', this.handlePointerup);
 		this.element.addEventListener('pointercancel', this.handlePointercancel);
+		this.element.addEventListener('wheel', this.handleWheel);
 	}
 	/**
 	 * 解绑事件
@@ -290,6 +308,7 @@
 		this.element.removeEventListener('pointermove', this.handlePointermove);
 		this.element.removeEventListener('pointerup', this.handlePointerup);
 		this.element.removeEventListener('pointercancel', this.handlePointercancel);
+		this.element.removeEventListener('wheel', this.handleWheel);
 	}
 	/**
 	 * 销毁
@@ -299,8 +318,8 @@
 	}
 	/**
 	 * 获取旋转角度
-	 * @param {object} a 
-	 * @param {object} b 
+	 * @param {object} a 第一个点的位置
+	 * @param {object} b 第二个点的位置
 	 * @returns 
 	 */
 	NonameGesture.prototype.getAngle = function (a, b) {
@@ -310,8 +329,8 @@
 	}
 	/**
 	 * 获取两点距离
-	 * @param {object} a
-	 * @param {object} b
+	 * @param {object} a 第一个点的位置
+	 * @param {object} b 第二个点的位置
 	 * @returns
 	 */
 	NonameGesture.prototype.getDistance = function (a, b) {
@@ -321,8 +340,8 @@
 	}
 	/**
 	 * 获取两点中心点
-	 * @param {object} a
-	 * @param {object} b
+	 * @param {object} a 第一个点的位置
+	 * @param {object} b 第二个点的位置
 	 * @returns
 	 */
 	NonameGesture.prototype.getCenter = function (a, b) {
@@ -332,10 +351,10 @@
 	}
 	/**
 	 * 获取图片缩放尺寸
-	 * @param {number} naturalWidth 
-	 * @param {number} naturalHeight 
-	 * @param {number} maxWidth 
-	 * @param {number} maxHeight 
+	 * @param {number} naturalWidth 图片自然宽度
+	 * @param {number} naturalHeight 图片自然高度
+	 * @param {number} maxWidth 最大显示宽度
+	 * @param {number} maxHeight 最大显示高度
 	 * @returns 
 	 */
 	NonameGesture.prototype.getImgSize = function (naturalWidth, naturalHeight, maxWidth, maxHeight) {
@@ -364,20 +383,21 @@
 	}
 	/**
 	 * 减速动画函数
-	 * @param {number} from 
-	 * @param {number} to 
-	 * @param {number} time 
-	 * @param {number} duration 
+	 * @param {number} from 开始位置
+	 * @param {number} to 结束位置
+	 * @param {number} time 动画已执行的时间
+	 * @param {number} duration 动画时长
 	 * @returns 
 	 */
 	NonameGesture.prototype.easeOut = function (from, to, time, duration) {
-		let change = to - from;
-		return -change * (time /= duration) * (time - 2) + from;
+		const change = to - from;
+		const t = time / duration;
+		return -change * t * (t - 2) + from;
 	}
 	/**
 	 * 动画
-	 * @param {function} func 
-	 * @param {number} duration
+	 * @param {function} func 回调
+	 * @param {number} duration 动画时长
 	 */
 	NonameGesture.prototype.raf = function (func, duration = 300) {
 		const self = this;

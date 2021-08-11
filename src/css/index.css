@@ -216,7 +216,8 @@ h4 {
 	touch-action: none;
 }
 
-/* rotate pinch */
+/* wheel rotate pinch */
+.wheel,
 .rotate,
 .pinch {
 	display: flex;
@@ -225,6 +226,7 @@ h4 {
 	overflow: hidden;
 }
 
+.wheel img,
 .rotate img,
 .pinch img {
 	width: 180px;

@@ -17,6 +17,7 @@
 	</div>
 	<div class="console"></div>
 
+	<!-- <script src="js/noname-gesture.js"></script> -->
 	<script src="../dist/noname-gesture.js"></script>
 	<script>
 		// pinch
@@ -50,6 +51,18 @@
 					scale = ${scale.toFixed(5)}<br>
 					centerX = ${e._centerX.toFixed(0)}<br>centerY = ${e._centerY.toFixed(0)}<br>
 					originX = ${origin.x.toFixed(5)}<br>originY = ${origin.y.toFixed(5)}<br>`;
+			},
+			wheel: function (e) {
+				const origin = {
+					x: (e._scale - 1) * result.width * 0.5,
+					y: (e._scale - 1) * result.height * 0.5
+				};
+				x -= (e._scale - 1) * (e.clientX - x) - origin.x;
+				y -= (e._scale - 1) * (e.clientY - y) - origin.y;
+				scale *= e._scale;
+				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
+				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
+				e.preventDefault();
 			}
 		});
 		// 由于图片是异步加载，需要在load方法里获取naturalWidth，naturalHeight

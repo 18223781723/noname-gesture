@@ -13,7 +13,7 @@
 
 <body>
 	<h1>NonameGesture</h1>
-	<p>基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放。兼容主流浏览器，上手简单，零依赖。</p>
+	<p>基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放，鼠标滚轮缩放。兼容主流浏览器，上手简单，零依赖。</p>
 
 	<!-- tap -->
 	<h4>tap</h4>
@@ -59,6 +59,12 @@
 
 	<!-- drag -->
 	<button class="drag" type="button"></button>
+
+	<!-- wheel -->
+	<h4>wheel</h4>
+	<div class="wheel">
+		<img src="src/images/liya.jpg" alt="">
+	</div>
 
 	<!-- rotate -->
 	<h4>rotate</h4>
@@ -199,6 +205,17 @@
 			}
 		});
 
+		// wheel
+		const wheelDom = document.querySelector('.wheel img');
+		let wheelScale = 1;
+		new NonameGesture(wheelDom, {
+			wheel: function (e) {
+				wheelScale *= e._scale;
+				wheelDom.style.transform = 'scale(' + wheelScale + ')';
+				e.preventDefault();
+			}
+		});
+
 		// rotate
 		const rotateDom = document.querySelector('.rotate img');
 		let rotate = 0;
@@ -211,11 +228,11 @@
 
 		// pinch
 		const pinchDom = document.querySelector('.pinch img');
-		let scale = 1;
+		let pinchScale = 1;
 		const pinchGesture = new NonameGesture(pinchDom, {
 			pinch: function (e) {
-				scale *= e._scale;
-				pinchDom.style.transform = 'scale(' + scale + ')';
+				pinchScale *= e._scale;
+				pinchDom.style.transform = 'scale(' + pinchScale + ')';
 			}
 		});
 	</script>
