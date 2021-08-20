@@ -12,7 +12,8 @@
 }
 
 .container img {
-	-webkit-user-drag: none;
+	display: block;
+	/* 使用-webkit-user-drag: none;会导致华为浏览器长按不显示拖动缩略图 */
 }
 
 .console {

@@ -17,8 +17,8 @@
 	</div>
 	<div class="console"></div>
 
-	<!-- <script src="js/noname-gesture.js"></script> -->
-	<script src="../dist/noname-gesture.js"></script>
+	<script src="js/noname-gesture.js"></script>
+	<!-- <script src="../dist/noname-gesture.min.js"></script> -->
 	<script>
 		// pinch
 		const pinchDom = document.querySelector('.container img');
@@ -26,9 +26,26 @@
 		// 全局变量
 		let result, x, y, scale = 1;
 		const pinchGesture = new NonameGesture(pinchDom, {
+			doubleTap: function (e) {
+				let ratio = 1 / scale;
+				if (scale <= 1) {
+					ratio = 4;
+				}
+				const origin = {
+					x: (ratio - 1) * result.width * 0.5,
+					y: (ratio - 1) * result.height * 0.5
+				};
+				x -= (ratio - 1) * (e.clientX - x) - origin.x;
+				y -= (ratio - 1) * (e.clientY - y) - origin.y;
+				scale *= ratio;
+				pinchDom.style.transition = 'transform 300ms';
+				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
+				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
+			},
 			drag: function (e) {
 				x += e._diffX;
 				y += e._diffY;
+				pinchDom.style.transition = 'none';
 				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
 				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
 			},
@@ -46,6 +63,7 @@
 				y -= (e._scale - 1) * (e._centerY - y) - origin.y - (e._centerY - e._lastCenterY);
 				// 缩放比例，计算宽高width *= e._scale; height *= e._scale;
 				scale *= e._scale;
+				pinchDom.style.transition = 'none';
 				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
 				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>
 					scale = ${scale.toFixed(5)}<br>
@@ -60,6 +78,7 @@
 				x -= (e._scale - 1) * (e.clientX - x) - origin.x;
 				y -= (e._scale - 1) * (e.clientY - y) - origin.y;
 				scale *= e._scale;
+				pinchDom.style.transition = 'none';
 				pinchDom.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
 				consoleDom.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
 				e.preventDefault();
@@ -76,7 +95,6 @@
 		});
 		// 图片赋值需放在load回调之后，因为图片缓存后读取很快，有可能不执行load回调
 		pinchDom.src = 'images/liya.jpg';
-
 	</script>
 </body>
 

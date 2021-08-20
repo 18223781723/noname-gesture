@@ -32,6 +32,7 @@
 	 * @param {PointerEvent} e 
 	 */
 	NonameGesture.prototype.handlePointerdown = function (e) {
+		// 如果鼠标点击，只响应左键
 		if (e.pointerType === 'mouse' && e.button !== 0) {
 			return;
 		}
@@ -221,6 +222,7 @@
 	 * @param {PointerEvent} e
 	 */
 	NonameGesture.prototype.handleSwipe = function (e) {
+		const MIN_SWIPE_DISTANCE = 20;
 		let x = 0, y = 0;
 		// 如果200ms内移动距离大于20
 		for (const item of this.points) {
@@ -231,10 +233,10 @@
 				break;
 			};
 		}
-		if (Math.abs(x) > 20) {
+		if (Math.abs(x) > MIN_SWIPE_DISTANCE) {
 			e._swipeDirection = x > 0 ? 'right' : 'left';
 			e._hasTriggerSwipe = true;
-		} else if (Math.abs(y) > 20) {
+		} else if (Math.abs(y) > MIN_SWIPE_DISTANCE) {
 			e._swipeDirection = y > 0 ? 'down' : 'up';
 			e._hasTriggerSwipe = true;
 		}
@@ -262,12 +264,12 @@
 	 */
 	NonameGesture.prototype.handlePinch = function (e, a, b) {
 		e._scale = this.getDistance(a, b) / this.getDistance(this.lastPoint1, this.lastPoint2);
-		let center = this.getCenter(a, b);
+		const center = this.getCenter(a, b);
 		e._centerX = center.x;
 		e._centerY = center.y;
 		e._lastCenterX = this.lastCenter.x;
 		e._lastCenterY = this.lastCenter.y;
-		this.lastCenter = center;
+		this.lastCenter = { x: center.x, y: center.y };
 		if (this.options.pinch) {
 			this.options.pinch(e);
 		}
@@ -412,14 +414,13 @@
 				time = duration;
 				count++;
 			}
+			func(time);
 			if (count <= 1) {
-				func(time);
 				self.rafId = window.requestAnimationFrame(step);
 			}
 		}
 		this.rafId = window.requestAnimationFrame(step);
 	}
-
 	if (typeof define === 'function' && define.amd) {
 		define(function () { return NonameGesture; });
 	} else if (typeof module === 'object' && typeof exports === 'object') {
