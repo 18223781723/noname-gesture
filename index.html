@@ -183,7 +183,7 @@
 					swipeX = -140;
 				}
 				to = swipeX;
-				swipeDom.style.transition = 'transform .2s ease';
+				swipeDom.style.transition = 'transform .2s ease-out';
 				swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
 				/* const duration = 200;
 				swipeGesture.raf(function (time) {
@@ -199,7 +199,7 @@
 						swipeX = e._distanceX > 50 ? 0 : -140;
 					}
 					to = swipeX;
-					swipeDom.style.transition = 'transform .2s ease';
+					swipeDom.style.transition = 'transform .2s ease-out';
 					swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
 				}
 			}

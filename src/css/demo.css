@@ -16,7 +16,7 @@
 	/* 使用-webkit-user-drag: none;会导致华为浏览器长按不显示拖动缩略图 */
 }
 
-.console {
+.log {
 	position: fixed;
 	top: 0;
 	left: 0;
