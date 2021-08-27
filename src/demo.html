@@ -23,14 +23,14 @@
 		const image = document.querySelector('img');
 		const log = document.querySelector('.log');
 		// 全局变量
-		let x, y, scale = 1;
+		let result, maxScale, minScale = 0.8, x, y, scale = 1, rotate = 0;
 		// 由于图片是异步加载，需要在load方法里获取naturalWidth，naturalHeight
 		image.addEventListener('load', function () {
 			const gesture = new NonameGesture(image, {
 				doubleTap: function (e) {
 					let ratio = 1 / scale;
 					if (scale <= 1) {
-						ratio = 4;
+						ratio = maxScale / scale;
 					}
 					const origin = {
 						x: (ratio - 1) * result.width * 0.5,
@@ -40,58 +40,97 @@
 					y -= (ratio - 1) * (e.clientY - y) - origin.y;
 					scale *= ratio;
 					image.style.transition = 'transform 300ms';
-					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
+					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}`;
 				},
 				drag: function (e) {
 					x += e._diffX;
 					y += e._diffY;
 					image.style.transition = 'none';
-					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
+					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}`;
+				},
+				rotate: function (e) {
+					// transform-origin相对于视口左上角的坐标
+					const origin = {
+						x: result.width * 0.5 + x,
+						y: result.height * 0.5 + y
+					};
+					// 以双指中心为原点(0, 0)，计算transform-origin的相对坐标
+					const a = {
+						x: origin.x - e._centerX,
+						y: e._centerY - origin.y
+					};
+					// 计算点a绕双指中心(0, 0)旋转angle度后点b的坐标
+					const b = {
+						x: (a.x - 0) * Math.cos(e._rotate * Math.PI / 180) + (a.y - 0) * Math.sin(e._rotate * Math.PI / 180) + 0,
+						y: (a.x - 0) * Math.sin(e._rotate * Math.PI / 180) - (a.y - 0) * Math.cos(e._rotate * Math.PI / 180) + 0
+					}
+					rotate = (rotate + e._rotate) % 360;
+					x -= a.x - b.x;
+					y += a.y + b.y;
 				},
 				pinch: function (e) {
+					// 缩放比例，计算宽高width *= e._scale; height *= e._scale;
+					const s = scale * e._scale;
+					if (s > maxScale) {
+						e._scale = maxScale / scale;
+						scale = maxScale;
+					} else if (s < minScale) {
+						e._scale = minScale / scale;
+						scale = minScale;
+					} else {
+						scale *= e._scale;
+					}
 					// 计算图片中心偏移量，默认transform-origin: 50% 50%
-					// 如果transform-origin: 30% 40%，那origin.x = (ratio - 1) * result.width * 0.3
-					// origin.y = (ratio - 1) * result.height * 0.4
+					// 如果transform-origin: 30% 40%，那origin.x = (e._scale - 1) * result.width * 0.3
+					// origin.y = (e._scale - 1) * result.height * 0.4
 					// 如果通过修改宽高或使用transform缩放，但将transform-origin设置为左上角时。
-					// 可以不用计算origin，因为(ratio - 1) * result.width * 0 = 0
+					// 可以不用计算origin，因为(e._scale - 1) * result.width * 0 = 0
 					const origin = {
 						x: (e._scale - 1) * result.width * 0.5,
 						y: (e._scale - 1) * result.height * 0.5
 					};
 					x -= (e._scale - 1) * (e._centerX - x) - origin.x - (e._centerX - e._lastCenterX);
 					y -= (e._scale - 1) * (e._centerY - y) - origin.y - (e._centerY - e._lastCenterY);
-					// 缩放比例，计算宽高width *= e._scale; height *= e._scale;
-					scale *= e._scale;
 					image.style.transition = 'none';
-					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>
-					scale = ${scale.toFixed(5)}<br>
+					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}<br>
 					centerX = ${e._centerX.toFixed(0)}<br>centerY = ${e._centerY.toFixed(0)}<br>
-					originX = ${origin.x.toFixed(5)}<br>originY = ${origin.y.toFixed(5)}<br>`;
+					lastCenterX = ${e._lastCenterX.toFixed(5)}<br>lastCenterY = ${e._lastCenterY.toFixed(5)}`;
 				},
 				wheel: function (e) {
+					const s = scale * e._scale;
+					if (s > maxScale) {
+						e._scale = maxScale / scale;
+						scale = maxScale;
+					} else if (s < minScale) {
+						e._scale = minScale / scale;
+						scale = minScale;
+					} else {
+						scale *= e._scale;
+					}
 					const origin = {
 						x: (e._scale - 1) * result.width * 0.5,
 						y: (e._scale - 1) * result.height * 0.5
 					};
+					// 以鼠标位置为中心，计算缩放偏移量
 					x -= (e._scale - 1) * (e.clientX - x) - origin.x;
 					y -= (e._scale - 1) * (e.clientY - y) - origin.y;
-					scale *= e._scale;
 					image.style.transition = 'none';
-					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ')';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}`;
+					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}`;
 					e.preventDefault();
 				}
 			});
 			// 图片初始信息
-			const result = gesture.getImgSize(image.naturalWidth, image.naturalHeight, window.innerWidth, window.innerHeight);
+			result = gesture.getImgSize(image.naturalWidth, image.naturalHeight, window.innerWidth, window.innerHeight);
 			image.style.width = result.width + 'px';
 			image.style.height = result.height + 'px';
 			x = (window.innerWidth - result.width) * 0.5;
 			y = (window.innerHeight - result.height) * 0.5;
-			image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1)';
+			image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1) rotate(' + rotate + 'deg)';
+			maxScale = Math.max(Math.round(image.naturalWidth / result.width), 2);
 		});
 		// 图片赋值需放在load回调之后，因为图片缓存后读取很快，有可能不执行load回调
 		image.src = 'images/liya.jpg';

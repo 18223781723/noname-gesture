@@ -30,7 +30,7 @@ function NonameGesture(element, options) {
  * @param {PointerEvent} e 
  */
 NonameGesture.prototype.handlePointerdown = function (e) {
-	// 如果鼠标点击，只响应左键
+	// 如果是鼠标点击，只响应左键
 	if (e.pointerType === 'mouse' && e.button !== 0) {
 		return;
 	}
@@ -102,17 +102,23 @@ NonameGesture.prototype.handlePointermove = function (e) {
 		this.lastMove = { x: current1.x, y: current1.y };
 	} else if (this.pointers.length === 2) {
 		const current2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
+		const center = this.getCenter(current1, current2);
+		e._centerX = center.x;
+		e._centerY = center.y;
+		e._lastCenterX = this.lastCenter.x;
+		e._lastCenterY = this.lastCenter.y;
 		// rotate
 		this.handleRotate(e, current1, current2);
 		// pinch
 		this.handlePinch(e, current1, current2);
 		this.lastPoint1 = { x: current1.x, y: current1.y };
 		this.lastPoint2 = { x: current2.x, y: current2.y };
+		this.lastCenter = { x: center.x, y: center.y };
 	}
 	if (this.options.pointermove) {
 		this.options.pointermove(e);
 	}
-	// 阻止默认行为，例如阻止图片拖拽
+	// 阻止默认行为，例如图片拖拽
 	e.preventDefault();
 }
 /**
@@ -249,7 +255,14 @@ NonameGesture.prototype.handleSwipe = function (e) {
  * @param {object} b 第二个点的位置
  */
 NonameGesture.prototype.handleRotate = function (e, a, b) {
-	e._rotate = this.getAngle(a, b) - this.getAngle(this.lastPoint1, this.lastPoint2);
+	const angle = this.getAngle(a, b);
+	const lastAngle = this.getAngle(this.lastPoint1, this.lastPoint2);
+	let num = 1;
+	// 使用乘法判断两数同号或异号（一正一负）
+	if (angle * lastAngle < 0) {
+		num = -1;
+	}
+	e._rotate = angle * num - lastAngle;
 	if (this.options.rotate) {
 		this.options.rotate(e);
 	}
@@ -262,12 +275,6 @@ NonameGesture.prototype.handleRotate = function (e, a, b) {
  */
 NonameGesture.prototype.handlePinch = function (e, a, b) {
 	e._scale = this.getDistance(a, b) / this.getDistance(this.lastPoint1, this.lastPoint2);
-	const center = this.getCenter(a, b);
-	e._centerX = center.x;
-	e._centerY = center.y;
-	e._lastCenterX = this.lastCenter.x;
-	e._lastCenterY = this.lastCenter.y;
-	this.lastCenter = { x: center.x, y: center.y };
 	if (this.options.pinch) {
 		this.options.pinch(e);
 	}
@@ -279,7 +286,7 @@ NonameGesture.prototype.handlePinch = function (e, a, b) {
 NonameGesture.prototype.handleWheel = function (e) {
 	e._scale = 1.1;
 	if (e.deltaY > 0) {
-		e._scale = 0.9;
+		e._scale = 1 / 1.1;
 	}
 	if (this.options.wheel) {
 		this.options.wheel(e);
