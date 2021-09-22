@@ -14,7 +14,7 @@
 		this.lastPoint2 = { x: 0, y: 0 }; // 上一次第二个触摸点位置
 		this.distance = { x: 0, y: 0 }; // 移动距离
 		this.lastDistance = { x: 0, y: 0 }; // 上一次移动距离
-		this.lastMove = { x: 0, y: 0 }; // 上一次移动位置
+		this.lastPointermove = { x: 0, y: 0 }; // 上一次移动位置
 		this.lastCenter = { x: 0, y: 0 }; // 上一次中心位置
 		this.tapCount = 0; // 点击计数器
 		this.points = []; // 移动位置数组 长度20 用于计算是否触发swipe
@@ -37,7 +37,8 @@
 			return;
 		}
 		this.pointers.push(e);
-		this.point1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+		this.point1.x = this.pointers[0].clientX;
+		this.point1.y = this.pointers[0].clientY;
 		if (this.pointers.length === 1) {
 			this.isPointerdown = true;
 			this.element.setPointerCapture(e.pointerId);
@@ -45,8 +46,12 @@
 			this.dragDirection = '';
 			this.points.length = 0;
 			clearTimeout(this.singleTapTimeout);
-			this.distance = { x: 0, y: 0 };
-			this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+			this.distance.x = 0;
+			this.distance.y = 0;
+			this.lastDistance.x = 0;
+			this.lastDistance.y = 0;
+			this.lastPointermove.x = this.pointers[0].clientX;
+			this.lastPointermove.y = this.pointers[0].clientY;
 			// 双击两次距离不超过30
 			if (this.tapCount > 1) {
 				if (Math.abs(this.point1.x - this.lastPoint1.x) > 30 || Math.abs(this.point1.y - this.lastPoint1.y) > 30) {
@@ -65,10 +70,15 @@
 		} else if (this.pointers.length === 2) {
 			this.tapCount = 0;
 			clearTimeout(this.longTapTimeout);
-			this.point2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
-			this.lastPoint2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
-			this.lastDistance = { x: this.distance.x, y: this.distance.y };
-			this.lastCenter = this.getCenter(this.point1, this.point2);
+			this.point2.x = this.pointers[1].clientX;
+			this.point2.y = this.pointers[1].clientY;
+			this.lastPoint2.x = this.pointers[1].clientX;
+			this.lastPoint2.y = this.pointers[1].clientY;
+			this.lastDistance.x = this.distance.x;
+			this.lastDistance.y = this.distance.y;
+			const center = this.getCenter(this.point1, this.point2);
+			this.lastCenter.x = center.x;
+			this.lastCenter.y = center.y;
 		}
 		this.lastPoint1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		if (this.options.pointerdown) {
@@ -86,7 +96,8 @@
 		this.handlePointers(e, 'update');
 		const current1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
 		if (this.pointers.length === 1) {
-			this.distance = { x: current1.x - this.point1.x + this.lastDistance.x, y: current1.y - this.point1.y + this.lastDistance.y };
+			this.distance.x = current1.x - this.point1.x + this.lastDistance.x;
+			this.distance.y = current1.y - this.point1.y + this.lastDistance.y;
 			// 偏移量大于10表示移动
 			if (Math.abs(this.distance.x) > 10 || Math.abs(this.distance.y) > 10) {
 				this.tapCount = 0;
@@ -101,7 +112,8 @@
 			}
 			// drag
 			this.handleDrag(e, current1);
-			this.lastMove = { x: current1.x, y: current1.y };
+			this.lastPointermove.x = current1.x;
+			this.lastPointermove.y = current1.y;
 		} else if (this.pointers.length === 2) {
 			const current2 = { x: this.pointers[1].clientX, y: this.pointers[1].clientY };
 			const center = this.getCenter(current1, current2);
@@ -113,9 +125,12 @@
 			this.handleRotate(e, current1, current2);
 			// pinch
 			this.handlePinch(e, current1, current2);
-			this.lastPoint1 = { x: current1.x, y: current1.y };
-			this.lastPoint2 = { x: current2.x, y: current2.y };
-			this.lastCenter = { x: center.x, y: center.y };
+			this.lastPoint1.x = current1.x;
+			this.lastPoint1.y = current1.y;
+			this.lastPoint2.x = current2.x;
+			this.lastPoint2.y = current2.y;
+			this.lastCenter.x = center.x;
+			this.lastCenter.y = center.y;
 		}
 		if (this.options.pointermove) {
 			this.options.pointermove(e);
@@ -157,8 +172,10 @@
 				}
 			}
 		} else if (this.pointers.length === 1) {
-			this.point1 = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
-			this.lastMove = { x: this.pointers[0].clientX, y: this.pointers[0].clientY };
+			this.point1.x = this.pointers[0].clientX;
+			this.point1.y = this.pointers[0].clientY;
+			this.lastPointermove.x = this.pointers[0].clientX;
+			this.lastPointermove.y = this.pointers[0].clientY;
 		}
 		e._distanceX = this.distance.x;
 		e._distanceY = this.distance.y;
@@ -215,8 +232,8 @@
 	 */
 	NonameGesture.prototype.handleDrag = function (e, a) {
 		e._dragDirection = this.dragDirection;
-		e._diffX = a.x - this.lastMove.x;
-		e._diffY = a.y - this.lastMove.y;
+		e._diffX = a.x - this.lastPointermove.x;
+		e._diffY = a.y - this.lastPointermove.y;
 		e._distanceX = a.x - this.point1.x + this.lastDistance.x;
 		e._distanceY = a.y - this.point1.y + this.lastDistance.y;
 		if (this.options.drag) {
@@ -356,7 +373,7 @@
 	NonameGesture.prototype.getCenter = function (a, b) {
 		const x = (a.x + b.x) / 2;
 		const y = (a.y + b.y) / 2;
-		return { x: x, y: y }
+		return { x: x, y: y };
 	}
 	/**
 	 * 获取图片缩放尺寸
@@ -388,7 +405,7 @@
 				height = naturalHeight;
 			}
 		}
-		return { width: width, height: height }
+		return { width: width, height: height };
 	}
 	/**
 	 * 减速动画函数

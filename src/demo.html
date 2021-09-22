@@ -41,14 +41,14 @@
 					scale *= ratio;
 					image.style.transition = 'transform 300ms';
 					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}`;
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate = ${rotate.toFixed(1)}`;
 				},
 				drag: function (e) {
 					x += e._diffX;
 					y += e._diffY;
 					image.style.transition = 'none';
 					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}`;
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate = ${rotate.toFixed(1)}`;
 				},
 				rotate: function (e) {
 					// transform-origin相对于视口左上角的坐标
@@ -61,7 +61,7 @@
 						x: origin.x - e._centerX,
 						y: e._centerY - origin.y
 					};
-					// 计算点a绕双指中心(0, 0)旋转angle度后点b的坐标
+					// 计算点a绕双指中心(0, 0)旋转e._rotate度后点b的坐标
 					const b = {
 						x: (a.x - 0) * Math.cos(e._rotate * Math.PI / 180) + (a.y - 0) * Math.sin(e._rotate * Math.PI / 180) + 0,
 						y: (a.x - 0) * Math.sin(e._rotate * Math.PI / 180) - (a.y - 0) * Math.cos(e._rotate * Math.PI / 180) + 0
@@ -72,15 +72,15 @@
 				},
 				pinch: function (e) {
 					// 缩放比例，计算宽高width *= e._scale; height *= e._scale;
-					const s = scale * e._scale;
-					if (s > maxScale) {
+					const _scale = scale * e._scale;
+					if (_scale > maxScale) {
 						e._scale = maxScale / scale;
 						scale = maxScale;
-					} else if (s < minScale) {
+					} else if (_scale < minScale) {
 						e._scale = minScale / scale;
 						scale = minScale;
 					} else {
-						scale *= e._scale;
+						scale = _scale;
 					}
 					// 计算图片中心偏移量，默认transform-origin: 50% 50%
 					// 如果transform-origin: 30% 40%，那origin.x = (e._scale - 1) * result.width * 0.3
@@ -95,20 +95,20 @@
 					y -= (e._scale - 1) * (e._centerY - y) - origin.y - (e._centerY - e._lastCenterY);
 					image.style.transition = 'none';
 					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}<br>
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate = ${rotate.toFixed(1)}<br>
 					centerX = ${e._centerX.toFixed(0)}<br>centerY = ${e._centerY.toFixed(0)}<br>
 					lastCenterX = ${e._lastCenterX.toFixed(5)}<br>lastCenterY = ${e._lastCenterY.toFixed(5)}`;
 				},
 				wheel: function (e) {
-					const s = scale * e._scale;
-					if (s > maxScale) {
+					const _scale = scale * e._scale;
+					if (_scale > maxScale) {
 						e._scale = maxScale / scale;
 						scale = maxScale;
-					} else if (s < minScale) {
+					} else if (_scale < minScale) {
 						e._scale = minScale / scale;
 						scale = minScale;
 					} else {
-						scale *= e._scale;
+						scale = _scale;
 					}
 					const origin = {
 						x: (e._scale - 1) * result.width * 0.5,
@@ -119,7 +119,7 @@
 					y -= (e._scale - 1) * (e.clientY - y) - origin.y;
 					image.style.transition = 'none';
 					image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(' + scale + ') rotate(' + rotate + 'deg)';
-					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate=${rotate.toFixed(1)}`;
+					log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate = ${rotate.toFixed(1)}`;
 					e.preventDefault();
 				}
 			});

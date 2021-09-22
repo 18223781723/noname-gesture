@@ -147,7 +147,7 @@
 
 		// drag
 		const moveDom = document.querySelector('button.drag')
-		let moveX = 0;
+		let moveX = window.innerWidth - 44;
 		let moveY = window.innerHeight - 150;
 		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
 		new NonameGesture(moveDom, {
@@ -221,7 +221,7 @@
 		let rotate = 0;
 		new NonameGesture(rotateDom, {
 			rotate: function (e) {
-				rotate += e._rotate;
+				rotate = (rotate + e._rotate) % 360;
 				rotateDom.style.transform = 'rotate(' + rotate + 'deg)';
 			}
 		});
