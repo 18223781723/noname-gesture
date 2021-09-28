@@ -61,19 +61,19 @@
 	<button class="drag" type="button"></button>
 
 	<!-- wheel -->
-	<h4>wheel</h4>
+	<h4>wheel (scale = 1.00000)</h4>
 	<div class="wheel">
 		<img src="src/images/liya.jpg" alt="">
 	</div>
 
 	<!-- rotate -->
-	<h4>rotate</h4>
+	<h4>rotate (rotate = 0.0)</h4>
 	<div class="rotate">
 		<img src="src/images/liya.jpg" alt="">
 	</div>
 
 	<!-- pinch -->
-	<h4>pinch</h4>
+	<h4>pinch (scale = 1.00000)</h4>
 	<div class="pinch">
 		<img src="src/images/liya.jpg" alt="">
 	</div>
@@ -205,13 +205,21 @@
 			}
 		});
 
+		const h4s = document.querySelectorAll('h4');
+		const maxScale = 3, minScale = 0.8;
 		// wheel
 		const wheelDom = document.querySelector('.wheel img');
 		let wheelScale = 1;
 		new NonameGesture(wheelDom, {
 			wheel: function (e) {
 				wheelScale *= e._scale;
+				if (wheelScale > maxScale) {
+					wheelScale = maxScale;
+				} else if (wheelScale < minScale) {
+					wheelScale = minScale;
+				}
 				wheelDom.style.transform = 'scale(' + wheelScale + ')';
+				h4s[5].innerHTML = 'wheel (scale = ' + wheelScale.toFixed(5) + ')';
 				e.preventDefault();
 			}
 		});
@@ -223,6 +231,7 @@
 			rotate: function (e) {
 				rotate = (rotate + e._rotate) % 360;
 				rotateDom.style.transform = 'rotate(' + rotate + 'deg)';
+				h4s[6].innerHTML = 'rotate (rotate = ' + rotate.toFixed(1) + ')';
 			}
 		});
 
@@ -232,7 +241,13 @@
 		const pinchGesture = new NonameGesture(pinchDom, {
 			pinch: function (e) {
 				pinchScale *= e._scale;
+				if (pinchScale > maxScale) {
+					pinchScale = maxScale;
+				} else if (pinchScale < minScale) {
+					pinchScale = minScale;
+				}
 				pinchDom.style.transform = 'scale(' + pinchScale + ')';
+				h4s[7].innerHTML = 'pinch (scale = ' + pinchScale.toFixed(5) + ')';
 			}
 		});
 	</script>
