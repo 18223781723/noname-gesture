@@ -1,6 +1,8 @@
 ; (function () {
 	'use strict';
 	/**
+	 * NonameGesture v0.9.0
+ 	 * Github https://github.com/18223781723/noname-gesture
 	 * 使用PointerEvent实现的手势库
 	 * @param {HTMLElement} element 绑定事件的元素
 	 * @param {object} options 配置项
@@ -274,14 +276,7 @@
 	 * @param {object} b 第二个点的位置
 	 */
 	NonameGesture.prototype.handleRotate = function (e, a, b) {
-		const angle = this.getAngle(a, b);
-		const lastAngle = this.getAngle(this.lastPoint1, this.lastPoint2);
-		let num = 1;
-		// 使用乘法判断两数同号或异号（一正一负）
-		if (angle * lastAngle < 0) {
-			num = -1;
-		}
-		e._rotate = angle * num - lastAngle;
+		e._rotate = this.getAngle(a, b) - this.getAngle(this.lastPoint1, this.lastPoint2);
 		if (this.options.rotate) {
 			this.options.rotate(e);
 		}
