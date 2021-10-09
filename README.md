@@ -72,7 +72,7 @@ rotateImage.src = 'xxx.jpg';
 <img id="pinchImage" src="xxx.png" alt="">
 const pinchImage = document.getElementById('pinchImage');
 let result, x = 0, y = 0, scale = 1;
-rotateImage.addEventListener('load', function () {
+pinchImage.addEventListener('load', function () {
 	const pinchGesture = new NonameGesture(pinchImage, {
 		pinch: function (e) {
 			scale *= e._scale;
