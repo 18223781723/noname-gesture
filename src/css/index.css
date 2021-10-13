@@ -1,254 +1,251 @@
 * {
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-	min-height: 100vh;
-	line-height: 1.5;
-	user-select: none;
+    min-height: 100vh;
+    line-height: 1.5;
+    user-select: none;
 }
 
 .hide {
-	display: none !important;
+    display: none !important;
 }
 
 h1 {
-	padding: 15px 15px 0;
+    padding: 15px 15px 0;
 }
 
-h1+p {
-	padding: 10px 15px;
+.version {
+    font-size: 16px;
+    color: #1890ff;
+    text-decoration: none;
+}
+
+.desc {
+    padding: 10px 15px;
 }
 
 h4 {
-	padding: 10px 15px;
-	font-size: 14px;
-	line-height: 20px;
-	background: #EFF0F2;
+    padding: 10px 15px;
+    font-size: 14px;
+    line-height: 20px;
+    background: #EFF0F2;
 }
 
 /* tap singleTap doubleTap longTap */
-.tap,
-.single-tap,
-.double-tap,
-.long-tap {
-	padding: 15px;
-	font-size: 14px;
-	line-height: 20px;
-	background: #FFF;
+
+.tap, .single-tap, .double-tap, .long-tap {
+    padding: 15px;
+    font-size: 14px;
+    line-height: 20px;
+    background: #FFF;
 }
 
 .long-tap-layer {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: 999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
 }
 
 .long-tap-mask {
-	height: 100%;
-	background: rgba(0, 0, 0, .6);
+    height: 100%;
+    background: rgba(0, 0, 0, .6);
 }
 
 .animate-fade-in {
-	animation: fadeIn ease .3s forwards;
+    animation: fadeIn ease .3s forwards;
 }
 
 @keyframes fadeIn {
-	0% {
-		opacity: 0;
-	}
-
-	100% {
-		opacity: 1;
-	}
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 .animate-fade-out {
-	animation: fadeOut ease .3s forwards;
+    animation: fadeOut ease .3s forwards;
 }
 
 @keyframes fadeOut {
-	0% {
-		opacity: 1;
-	}
-
-	100% {
-		opacity: 0;
-	}
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 .long-tap-menu-list {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	z-index: 1000;
-	list-style: none;
-	border-radius: 5px 5px 0 0;
-	overflow: hidden;
-	background: #EFF0F2;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    list-style: none;
+    border-radius: 5px 5px 0 0;
+    overflow: hidden;
+    background: #EFF0F2;
 }
 
 .animate-slide-up {
-	animation: slideUp ease .3s forwards;
+    animation: slideUp ease .3s forwards;
 }
 
 @keyframes slideUp {
-	0% {
-		transform: translateY(100%);
-	}
-
-	100% {
-		transform: translateY(0);
-	}
+    0% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
 }
 
 .animate-slide-down {
-	animation: slideDown ease .3s forwards;
+    animation: slideDown ease .3s forwards;
 }
 
 @keyframes slideDown {
-	0% {
-		transform: translateY(0);
-	}
-
-	100% {
-		transform: translateY(100%);
-	}
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(100%);
+    }
 }
 
 .long-tap-menu-item {
-	padding: 15px;
-	font-size: 14px;
-	line-height: 20px;
-	text-align: center;
-	background: #FFF;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    background: #FFF;
 }
 
 .long-tap-menu-item:not(:last-child) {
-	margin-bottom: 1px;
+    margin-bottom: 1px;
 }
 
-.tap:active,
-.single-tap:active,
-.double-tap:active,
-.long-tap:active,
-.long-tap-menu-item:active {
-	background: #EFF0F2;
+.tap:active, .single-tap:active, .double-tap:active, .long-tap:active, .long-tap-menu-item:active {
+    background: #EFF0F2;
 }
 
 /* swipe */
+
 .swipe {
-	overflow: hidden;
-	touch-action: none;
+    overflow: hidden;
+    touch-action: none;
 }
 
 .swipe-item {
-	display: flex;
-	width: calc(100% + 140px);
-	background: #FFF;
+    display: flex;
+    width: calc(100% + 140px);
+    background: #FFF;
 }
 
 .box {
-	display: flex;
-	align-items: center;
-	width: calc(100% - 170px);
-	padding: 15px;
+    display: flex;
+    align-items: center;
+    width: calc(100% - 170px);
+    padding: 15px;
 }
 
 .avatar {
-	width: 40px;
-	height: 40px;
-	margin-right: 10px;
-	border-radius: 50%;
-	object-fit: cover;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .content {
-	width: calc(100% - 50px);
+    width: calc(100% - 50px);
 }
 
 .name {
-	font-size: 14px;
-	font-weight: bold;
-	line-height: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 20px;
 }
 
 .text {
-	font-size: 12px;
-	line-height: 18px;
-	color: #999;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
+    font-size: 12px;
+    line-height: 18px;
+    color: #999;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .btn {
-	width: 70px;
-	height: 70px;
-	color: #FFF;
-	border: none;
+    width: 70px;
+    height: 70px;
+    color: #FFF;
+    border: none;
 }
 
 .cancel {
-	background: #bdbdbd;
+    background: #bdbdbd;
 }
 
 .delete {
-	background: #ec2020;
+    background: #ec2020;
 }
 
 /* drag */
+
 .drag {
-	position: fixed;
-	top: 0;
-	left: 0;
-	z-index: 99;
-	width: 44px;
-	height: 44px;
-	border: none;
-	border-radius: 50%;
-	background: #fff url(../images/github.png) no-repeat center / 44px;
-	touch-action: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: #fff url(../images/github.png) no-repeat center / 44px;
+    touch-action: none;
 }
 
 /* wheel rotate pinch */
-.wheel,
-.rotate,
-.pinch {
-	display: flex;
-	height: 300px;
-	background: #FFF;
-	overflow: hidden;
+
+.wheel, .rotate, .pinch {
+    display: flex;
+    height: 300px;
+    background: #FFF;
+    overflow: hidden;
 }
 
-.wheel img,
-.rotate img,
-.pinch img {
-	width: 180px;
-	height: 180px;
-	object-fit: cover;
-	margin: auto;
-	touch-action: none;
+.wheel img, .rotate img, .pinch img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    margin: auto;
+    touch-action: none;
 }
+
+/* 综合例子 */
 
 .synthetical {
-	padding: 15px;
-	border-top: 1px solid #EFF0F2;
+    padding: 15px;
+    border-top: 1px solid #EFF0F2;
 }
 
 .synthetical a {
-	display: block;
-	height: 32px;
-	font-size: 14px;
-	line-height: 32px;
-	color: #FFF;
-	text-align: center;
-	text-decoration: none;
-	background: #1890ff;
-	border-radius: 2px;
+    display: block;
+    height: 32px;
+    font-size: 14px;
+    line-height: 32px;
+    color: #FFF;
+    text-align: center;
+    text-decoration: none;
+    background: #1890ff;
+    border-radius: 2px;
 }

@@ -1,31 +1,31 @@
 * {
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
-	height: 100vh;
-	background: #000;
-	user-select: none;
-	touch-action: none;
-	overflow: hidden;
+    height: 100vh;
+    background: #000;
+    user-select: none;
+    touch-action: none;
+    overflow: hidden;
 }
 
 .container img {
-	display: block;
-	/* 使用-webkit-user-drag: none;会导致华为浏览器长按不显示拖动缩略图 */
+    display: block;
+    /* 使用-webkit-user-drag: none;会导致华为浏览器长按不显示拖动缩略图 */
 }
 
 .log {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: 99;
-	padding: 5px;
-	color: #FFF;
-	font-size: 12px;
-	line-height: 18px;
-	pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99;
+    padding: 5px;
+    color: #FFF;
+    font-size: 12px;
+    line-height: 18px;
+    pointer-events: none;
 }

@@ -2,255 +2,253 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport"
-		content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<title>NonameGesture</title>
-	<link rel="icon" type="image/x-icon" href="src/images/favicon.ico">
-	<link rel="stylesheet" href="src/css/index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>NonameGesture</title>
+    <link rel="icon" type="image/x-icon" href="src/images/favicon.ico">
+    <link rel="stylesheet" href="src/css/index.css">
 </head>
 
 <body>
-	<h1>NonameGesture</h1>
-	<p>基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放，鼠标滚轮缩放。兼容主流浏览器，上手简单，零依赖。</p>
+    <h1>NonameGesture <a class="version" href="https://github.com/18223781723/noname-gesture">v1.0.0</a></h1>
+    <p class="desc">基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放，鼠标滚轮缩放。兼容主流浏览器，上手简单，零依赖。</p>
 
-	<!-- tap -->
-	<h4>tap</h4>
-	<div class="tap">tap次数 0</div>
+    <!-- tap -->
+    <h4>tap</h4>
+    <div class="tap">tap次数 0</div>
 
-	<!-- singleTap -->
-	<h4>singleTap</h4>
-	<div class="single-tap">singleTap次数 0</div>
+    <!-- singleTap -->
+    <h4>singleTap</h4>
+    <div class="single-tap">singleTap次数 0</div>
 
-	<!-- doubleTap -->
-	<h4>doubleTap</h4>
-	<div class="double-tap">doubleTap次数 0</div>
+    <!-- doubleTap -->
+    <h4>doubleTap</h4>
+    <div class="double-tap">doubleTap次数 0</div>
 
-	<!-- longTap -->
-	<h4>longTap</h4>
-	<div class="long-tap">长按呼出菜单</div>
-	<div class="long-tap-layer hide">
-		<div class="long-tap-mask"></div>
-		<ul class="long-tap-menu-list">
-			<li class="long-tap-menu-item">菜单一</li>
-			<li class="long-tap-menu-item">菜单二</li>
-			<li class="long-tap-menu-item">菜单三</li>
-			<li class="long-tap-menu-item">菜单四</li>
-			<li class="long-tap-menu-item">取消</li>
-		</ul>
-	</div>
+    <!-- longTap -->
+    <h4>longTap</h4>
+    <div class="long-tap">长按呼出菜单</div>
+    <div class="long-tap-layer hide">
+        <div class="long-tap-mask"></div>
+        <ul class="long-tap-menu-list">
+            <li class="long-tap-menu-item">菜单一</li>
+            <li class="long-tap-menu-item">菜单二</li>
+            <li class="long-tap-menu-item">菜单三</li>
+            <li class="long-tap-menu-item">菜单四</li>
+            <li class="long-tap-menu-item">取消</li>
+        </ul>
+    </div>
 
-	<!-- swipe -->
-	<h4>swipe</h4>
-	<div class="swipe">
-		<div class="swipe-item">
-			<div class="box">
-				<img class="avatar" src="src/images/baiyuekui.jpg" alt="">
-				<div class="content">
-					<p class="name">白月魁</p>
-					<p class="text">再拖下去，来交租的会越来越多，你们躲远点</p>
-				</div>
-			</div>
-			<button class="btn cancel" type="button">取消</button>
-			<button class="btn delete" type="button">删除</button>
-		</div>
-	</div>
+    <!-- swipe -->
+    <h4>swipe</h4>
+    <div class="swipe">
+        <div class="swipe-item">
+            <div class="box">
+                <img class="avatar" src="src/images/baiyuekui.jpg" alt="">
+                <div class="content">
+                    <p class="name">白月魁</p>
+                    <p class="text">再拖下去，来交租的会越来越多，你们躲远点。</p>
+                </div>
+            </div>
+            <button class="btn cancel" type="button">取消</button>
+            <button class="btn delete" type="button">删除</button>
+        </div>
+    </div>
 
-	<!-- drag -->
-	<button class="drag" type="button"></button>
+    <!-- drag -->
+    <button class="drag" type="button"></button>
 
-	<!-- wheel -->
-	<h4>wheel (scale = 1.00000)</h4>
-	<div class="wheel">
-		<img src="src/images/liya.jpg" alt="">
-	</div>
+    <!-- wheel -->
+    <h4>wheel (scale = 1.00000)</h4>
+    <div class="wheel">
+        <img src="src/images/liya.jpg" alt="">
+    </div>
 
-	<!-- rotate -->
-	<h4>rotate (rotate = 0.0)</h4>
-	<div class="rotate">
-		<img src="src/images/liya.jpg" alt="">
-	</div>
+    <!-- rotate -->
+    <h4>rotate (rotate = 0.0)</h4>
+    <div class="rotate">
+        <img src="src/images/liya.jpg" alt="">
+    </div>
 
-	<!-- pinch -->
-	<h4>pinch (scale = 1.00000)</h4>
-	<div class="pinch">
-		<img src="src/images/liya.jpg" alt="">
-	</div>
+    <!-- pinch -->
+    <h4>pinch (scale = 1.00000)</h4>
+    <div class="pinch">
+        <img src="src/images/liya.jpg" alt="">
+    </div>
 
-	<!-- demo -->
-	<div class="synthetical">
-		<a href="src/demo.html">综合例子</a>
-	</div>
+    <!-- demo -->
+    <div class="synthetical">
+        <a href="src/demo.html">综合例子</a>
+    </div>
 
-	<!-- <script src="src/js/noname-gesture.js"></script> -->
-	<script src="dist/noname-gesture.min.js"></script>
+    <!-- <script src="src/js/noname-gesture.js"></script> -->
+    <script src="dist/noname-gesture.min.js"></script>
 
-	<script>
-		// tap
-		const tapDom = document.querySelector('div.tap');
-		let tapCount = 0;
-		new NonameGesture(tapDom, {
-			tap: function (e) {
-				tapCount++;
-				tapDom.innerHTML = 'tap次数 ' + tapCount;
-			}
-		});
+    <script>
+        // tap
+        const tapDom = document.querySelector('div.tap');
+        let tapCount = 0;
+        new NonameGesture(tapDom, {
+            tap: function (e) {
+                tapCount++;
+                tapDom.innerHTML = 'tap次数 ' + tapCount;
+            }
+        });
 
-		// singleTap
-		const singleTapDom = document.querySelector('div.single-tap');
-		let singleTapCount = 0;
-		new NonameGesture(singleTapDom, {
-			singleTap: function (e) {
-				singleTapCount++;
-				singleTapDom.innerHTML = 'singleTap次数 ' + singleTapCount;
-			}
-		});
+        // singleTap
+        const singleTapDom = document.querySelector('div.single-tap');
+        let singleTapCount = 0;
+        new NonameGesture(singleTapDom, {
+            singleTap: function (e) {
+                singleTapCount++;
+                singleTapDom.innerHTML = 'singleTap次数 ' + singleTapCount;
+            }
+        });
 
-		// doubleTap
-		const doubleTapDom = document.querySelector('div.double-tap');
-		let doubleTapCount = 0;
-		new NonameGesture(doubleTapDom, {
-			doubleTap: function (e) {
-				doubleTapCount++;
-				doubleTapDom.innerHTML = 'doubleTap次数 ' + doubleTapCount;
-			}
-		});
+        // doubleTap
+        const doubleTapDom = document.querySelector('div.double-tap');
+        let doubleTapCount = 0;
+        new NonameGesture(doubleTapDom, {
+            doubleTap: function (e) {
+                doubleTapCount++;
+                doubleTapDom.innerHTML = 'doubleTap次数 ' + doubleTapCount;
+            }
+        });
 
-		// longTap
-		const longTapDom = document.querySelector('div.long-tap');
-		const layerDom = document.querySelector('div.long-tap-layer');
-		const maskDom = document.querySelector('div.long-tap-mask');
-		const menuDom = document.querySelector('ul.long-tap-menu-list');
-		new NonameGesture(longTapDom, {
-			longTap: function (e) {
-				layerDom.classList.remove('hide');
-				maskDom.classList.add('animate-fade-in');
-				menuDom.classList.add('animate-slide-up');
-			}
-		});
-		new NonameGesture(layerDom, {
-			tap: function (e) {
-				maskDom.classList.add('animate-fade-out');
-				maskDom.classList.remove('animate-fade-in');
-				menuDom.classList.add('animate-slide-down');
-				menuDom.classList.remove('animate-slide-up');
-			}
-		});
-		layerDom.addEventListener('animationend', function () {
-			if (maskDom.classList.contains('animate-fade-out')) {
-				layerDom.classList.add('hide');
-				maskDom.classList.remove('animate-fade-out');
-				menuDom.classList.remove('animate-slide-down');
-			}
-		});
+        // longTap
+        const longTapDom = document.querySelector('div.long-tap');
+        const layerDom = document.querySelector('div.long-tap-layer');
+        const maskDom = document.querySelector('div.long-tap-mask');
+        const menuDom = document.querySelector('ul.long-tap-menu-list');
+        new NonameGesture(longTapDom, {
+            longTap: function (e) {
+                layerDom.classList.remove('hide');
+                maskDom.classList.add('animate-fade-in');
+                menuDom.classList.add('animate-slide-up');
+            }
+        });
+        new NonameGesture(layerDom, {
+            tap: function (e) {
+                maskDom.classList.add('animate-fade-out');
+                maskDom.classList.remove('animate-fade-in');
+                menuDom.classList.add('animate-slide-down');
+                menuDom.classList.remove('animate-slide-up');
+            }
+        });
+        layerDom.addEventListener('animationend', function () {
+            if (maskDom.classList.contains('animate-fade-out')) {
+                layerDom.classList.add('hide');
+                maskDom.classList.remove('animate-fade-out');
+                menuDom.classList.remove('animate-slide-down');
+            }
+        });
 
-		// drag
-		const moveDom = document.querySelector('button.drag')
-		let moveX = window.innerWidth - 44;
-		let moveY = window.innerHeight - 150;
-		moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
-		new NonameGesture(moveDom, {
-			tap: function (e) {
-				window.location.href = 'https://github.com/18223781723/noname-gesture';
-			},
-			drag: function (e) {
-				moveX += e._diffX;
-				moveY += e._diffY;
-				moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
-			}
-		});
+        // drag
+        const moveDom = document.querySelector('button.drag')
+        let moveX = window.innerWidth - 44;
+        let moveY = window.innerHeight - 150;
+        moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
+        new NonameGesture(moveDom, {
+            tap: function (e) {
+                window.location.href = 'https://github.com/18223781723/noname-gesture';
+            },
+            drag: function (e) {
+                moveX += e._diffX;
+                moveY += e._diffY;
+                moveDom.style.transform = 'translate3d(' + moveX + 'px, ' + moveY + 'px , 0px)';
+            }
+        });
 
-		// swipe
-		const swipeDom = document.querySelector('div.swipe-item');
-		let from, to, swipeX = 0;
-		swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
-		const swipeGesture = new NonameGesture(swipeDom, {
-			drag: function (e,) {
-				swipeX += e._diffX;
-				if (swipeX > 0) {
-					swipeX = 0
-				} else if (swipeX < -140) {
-					swipeX = -140;
-				}
-				from = swipeX;
-				swipeDom.style.transition = 'none';
-				swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
-			},
-			swipe: function (e) {
-				swipeX = 0;
-				if (e._swipeDirection === 'left') {
-					swipeX = -140;
-				}
-				to = swipeX;
-				swipeDom.style.transition = 'transform .2s ease-out';
-				swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
-				/* const duration = 200;
-				swipeGesture.raf(function (time) {
-					let x = swipeGesture.easeOut(from, to, time, duration);
-					swipeDom.style.transform = 'translate3d(' + x + 'px, 0px , 0px)';
-				}, duration); */
-			},
-			pointerup: function (e) {
-				if (!e._hasTriggerSwipe) {
-					if (e._distanceX < 0) {
-						swipeX = e._distanceX <= -50 ? -140 : 0;
-					} else if (e._distanceX > 0) {
-						swipeX = e._distanceX > 50 ? 0 : -140;
-					}
-					to = swipeX;
-					swipeDom.style.transition = 'transform .2s ease-out';
-					swipeDom.style.transform = 'translate3d(' + to + 'px, 0px , 0px)';
-				}
-			}
-		});
+        // swipe
+        const swipeDom = document.querySelector('div.swipe-item');
+        let swipeX = 0, distanceX = 0;
+        swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
+        const swipeGesture = new NonameGesture(swipeDom, {
+            drag: function (e,) {
+                distanceX += e._diffX;
+                swipeX += e._diffX;
+                if (swipeX > 0) {
+                    swipeX = 0
+                } else if (swipeX < -140) {
+                    swipeX = -140;
+                }
+                swipeDom.style.transition = 'none';
+                swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
+            },
+            swipe: function (e) {
+                if (e._swipeDirection === 'left') {
+                    swipeX = -140;
+                } else if (e._swipeDirection === 'right') {
+                    swipeX = 0;
+                } else {
 
-		const h4s = document.querySelectorAll('h4');
-		const maxScale = 3, minScale = 0.8;
-		// wheel
-		const wheelDom = document.querySelector('.wheel img');
-		let wheelScale = 1;
-		new NonameGesture(wheelDom, {
-			wheel: function (e) {
-				wheelScale *= e._scale;
-				if (wheelScale > maxScale) {
-					wheelScale = maxScale;
-				} else if (wheelScale < minScale) {
-					wheelScale = minScale;
-				}
-				wheelDom.style.transform = 'scale(' + wheelScale + ')';
-				h4s[5].innerHTML = 'wheel (scale = ' + wheelScale.toFixed(5) + ')';
-				e.preventDefault();
-			}
-		});
+                }
+                swipeDom.style.transition = 'transform .2s ease';
+                swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
+            },
+            pointerup: function (e) {
+                if (swipeX === 0 || swipeX === -140) {
+                    return;
+                }
+                if (distanceX > 0) {
+                    swipeX = swipeX > -90 ? 0 : -140;
+                } else {
+                    swipeX = swipeX < -50 ? -140 : 0;
+                }
+                distanceX = 0;
+                swipeDom.style.transition = 'transform .2s ease';
+                swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
+            }
+        });
 
-		// rotate
-		const rotateDom = document.querySelector('.rotate img');
-		let rotate = 0;
-		new NonameGesture(rotateDom, {
-			rotate: function (e) {
-				rotate = (rotate + e._rotate) % 360;
-				rotateDom.style.transform = 'rotate(' + rotate + 'deg)';
-				h4s[6].innerHTML = 'rotate (rotate = ' + rotate.toFixed(1) + ')';
-			}
-		});
+        const h4s = document.querySelectorAll('h4');
+        const maxScale = 3, minScale = 0.5;
+        // wheel
+        const wheelDom = document.querySelector('.wheel img');
+        let wheelScale = 1;
+        new NonameGesture(wheelDom, {
+            wheel: function (e) {
+                wheelScale *= e._scale;
+                if (wheelScale > maxScale) {
+                    wheelScale = maxScale;
+                } else if (wheelScale < minScale) {
+                    wheelScale = minScale;
+                }
+                wheelDom.style.transform = 'scale(' + wheelScale + ')';
+                h4s[5].innerHTML = 'wheel (scale = ' + wheelScale.toFixed(5) + ')';
+                e.preventDefault();
+            }
+        });
 
-		// pinch
-		const pinchDom = document.querySelector('.pinch img');
-		let pinchScale = 1;
-		const pinchGesture = new NonameGesture(pinchDom, {
-			pinch: function (e) {
-				pinchScale *= e._scale;
-				if (pinchScale > maxScale) {
-					pinchScale = maxScale;
-				} else if (pinchScale < minScale) {
-					pinchScale = minScale;
-				}
-				pinchDom.style.transform = 'scale(' + pinchScale + ')';
-				h4s[7].innerHTML = 'pinch (scale = ' + pinchScale.toFixed(5) + ')';
-			}
-		});
-	</script>
+        // rotate
+        const rotateDom = document.querySelector('.rotate img');
+        let rotate = 0;
+        new NonameGesture(rotateDom, {
+            rotate: function (e) {
+                rotate = (rotate + e._rotate) % 360;
+                rotateDom.style.transform = 'rotate(' + rotate + 'deg)';
+                h4s[6].innerHTML = 'rotate (rotate = ' + rotate.toFixed(1) + ')';
+            }
+        });
+
+        // pinch
+        const pinchDom = document.querySelector('.pinch img');
+        let pinchScale = 1;
+        const pinchGesture = new NonameGesture(pinchDom, {
+            pinch: function (e) {
+                pinchScale *= e._scale;
+                if (pinchScale > maxScale) {
+                    pinchScale = maxScale;
+                } else if (pinchScale < minScale) {
+                    pinchScale = minScale;
+                }
+                pinchDom.style.transform = 'scale(' + pinchScale + ')';
+                h4s[7].innerHTML = 'pinch (scale = ' + pinchScale.toFixed(5) + ')';
+            }
+        });
+    </script>
 </body>
 
 </html>
