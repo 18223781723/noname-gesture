@@ -163,48 +163,47 @@
 
         // swipe
         const swipeDom = document.querySelector('div.swipe-item');
-        let swipeX = 0, distanceX = 0;
+        let swipeX = 0, lastSwipeX = 0, swipeStartX = 0, swipeEndX = -140;
         swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
         const swipeGesture = new NonameGesture(swipeDom, {
             drag: function (e,) {
-                distanceX += e._diffX;
                 swipeX += e._diffX;
-                if (swipeX > 0) {
-                    swipeX = 0
-                } else if (swipeX < -140) {
-                    swipeX = -140;
+                if (swipeX > swipeStartX) {
+                    swipeX = swipeStartX
+                } else if (swipeX < swipeEndX) {
+                    swipeX = swipeEndX;
                 }
                 swipeDom.style.transition = 'none';
                 swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
             },
             swipe: function (e) {
                 if (e._swipeDirection === 'left') {
-                    swipeX = -140;
+                    swipeX = swipeEndX;
+                    lastSwipeX = swipeX;
                 } else if (e._swipeDirection === 'right') {
-                    swipeX = 0;
-                } else {
-
+                    swipeX = swipeStartX;
+                    lastSwipeX = swipeX;
                 }
                 swipeDom.style.transition = 'transform .2s ease';
                 swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
             },
             pointerup: function (e) {
-                if (swipeX === 0 || swipeX === -140) {
+                if (swipeX === swipeStartX || swipeX === swipeEndX) {
                     return;
                 }
-                if (distanceX > 0) {
-                    swipeX = swipeX > -90 ? 0 : -140;
-                } else {
-                    swipeX = swipeX < -50 ? -140 : 0;
+                if (lastSwipeX === swipeStartX) {
+                    swipeX = swipeX < swipeStartX - 50 ? swipeEndX : swipeStartX;
+                } else if (lastSwipeX === swipeEndX) {
+                    swipeX = swipeX > swipeEndX + 50 ? swipeStartX : swipeEndX;
                 }
-                distanceX = 0;
+                lastSwipeX = swipeX;
                 swipeDom.style.transition = 'transform .2s ease';
                 swipeDom.style.transform = 'translate3d(' + swipeX + 'px, 0px , 0px)';
             }
         });
 
         const h4s = document.querySelectorAll('h4');
-        const maxScale = 3, minScale = 0.5;
+        const maxScale = 3, minScale = 0.8;
         // wheel
         const wheelDom = document.querySelector('.wheel img');
         let wheelScale = 1;

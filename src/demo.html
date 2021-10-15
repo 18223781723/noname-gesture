@@ -17,15 +17,26 @@
     </div>
     <div class="log"></div>
 
-    <script src="js/noname-gesture.js"></script>
-    <!-- <script src="../dist/noname-gesture.min.js"></script> -->
+    <!-- <script src="js/noname-gesture.js"></script> -->
+    <script src="../dist/noname-gesture.min.js"></script>
     <script>
+        // 获取dom
         const image = document.querySelector('img');
         const log = document.querySelector('.log');
         // 全局变量
-        let result, maxScale, minScale = 0.5, x, y, scale = 1, rotate = 0;
+        let result,
+            maxScale,
+            minScale = 0.5,
+            x,
+            y,
+            scale = 1,
+            rotate = 0;
         // 由于图片是异步加载，需要在load方法里获取naturalWidth，naturalHeight
-        image.addEventListener('load', function () {
+        image.addEventListener('load', init);
+        // 图片赋值需放在load回调之后，因为图片缓存后读取很快，有可能不执行load回调
+        image.src = 'images/liya.jpg';
+        // 初始化，绑定事件，计算宽高等
+        function init() {
             const gesture = new NonameGesture(image, {
                 doubleTap: function (e) {
                     let ratio = 1 / scale;
@@ -131,9 +142,8 @@
             y = (window.innerHeight - result.height) * 0.5;
             image.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) scale(1) rotate(' + rotate + 'deg)';
             maxScale = Math.max(Math.round(image.naturalWidth / result.width), 3);
-        });
-        // 图片赋值需放在load回调之后，因为图片缓存后读取很快，有可能不执行load回调
-        image.src = 'images/liya.jpg';
+            log.innerHTML = `x = ${x.toFixed(0)}<br>y = ${y.toFixed(0)}<br>scale = ${scale.toFixed(5)}<br>rotate = ${rotate.toFixed(1)}`;
+        }
     </script>
 </body>
 
