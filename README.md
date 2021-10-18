@@ -1,9 +1,11 @@
 # noname-gesture
 基于JavaScript开发的移动端手势库，支持单击，双击，长按，滑动，拖拽，双指旋转，双指缩放，鼠标滚轮缩放。兼容主流浏览器，上手简单，零依赖。
 
+![Demo](https://github.com/18223781723/noname-gesture/blob/main/src/images/demo.gif)
+
 Demo: http://nonamegesture.codeman.top
 
-![二维码](http://nonamegesture.codeman.top/src/images/qrcode.png)
+![二维码](https://github.com/18223781723/noname-gesture/blob/main/src/images/qrcode.png)
 
 # Getting Started
 In a browser:
