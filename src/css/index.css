@@ -228,6 +228,9 @@ h4 {
     height: 180px;
     object-fit: cover;
     margin: auto;
+}
+
+.rotate img, .pinch img {
     touch-action: none;
 }
 
