@@ -67,19 +67,16 @@
                         x: result.width * 0.5 + x,
                         y: result.height * 0.5 + y
                     };
-                    // 以双指中心为原点(0, 0)，计算transform-origin的相对坐标
-                    const a = {
-                        x: origin.x - e._centerX,
-                        y: e._centerY - origin.y
-                    };
-                    // 计算点a绕双指中心(0, 0)旋转e._rotate度后点b的坐标
-                    const b = {
-                        x: (a.x - 0) * Math.cos(e._rotate * Math.PI / 180) + (a.y - 0) * Math.sin(e._rotate * Math.PI / 180) + 0,
-                        y: (a.x - 0) * Math.sin(e._rotate * Math.PI / 180) - (a.y - 0) * Math.cos(e._rotate * Math.PI / 180) + 0
-                    }
-                    rotate = (rotate + e._rotate) % 360;
-                    x -= a.x - b.x;
-                    y += a.y + b.y;
+					// 计算点图片变换中心绕双指中心旋转e._rotate度后的坐标，设为点a
+					const a = {
+						x: (origin.x - e._centerX) * Math.cos(e._rotate * Math.PI / 180) - (origin.y - e._centerY) * Math.sin(e._rotate * Math.PI / 180) + e._centerX,
+						y: (origin.x - e._centerX) * Math.sin(e._rotate * Math.PI / 180) + (origin.y - e._centerY) * Math.cos(e._rotate * Math.PI / 180) + e._centerY
+					}
+					// 计算偏移量
+					x -= origin.x - a.x;
+					y -= origin.y - a.y;
+					// 旋转角度
+                    rotate = (rotate + e._rotate + 360) % 360;
                 },
                 pinch: function (e) {
                     // 缩放比例，计算宽高width *= e._scale; height *= e._scale;
