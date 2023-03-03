@@ -42,20 +42,20 @@ rotateImage.addEventListener('load', function () {
     const rotateGesture = new NonameGesture(rotateImage, {
         rotate: function (e) {
             // transform-origin相对于视口左上角的坐标
-			const origin = {
-				x: result.width * 0.5 + x,
-				y: result.height * 0.5 + y
-			};
-			// 计算点图片变换中心绕双指中心旋转e._rotate度后的坐标，设为点a
-			const a = {
-				x: (origin.x - e._centerX) * Math.cos(e._rotate * Math.PI / 180) - (origin.y - e._centerY) * Math.sin(e._rotate * Math.PI / 180) + e._centerX,
-				y: (origin.x - e._centerX) * Math.sin(e._rotate * Math.PI / 180) + (origin.y - e._centerY) * Math.cos(e._rotate * Math.PI / 180) + e._centerY
-			}
-			// 计算偏移量
-			x -= origin.x - a.x;
-			y -= origin.y - a.y;
-			// 旋转角度
-			rotate = (rotate + e._rotate + 360) % 360;
+            const origin = {
+                x: result.width * 0.5 + x,
+                y: result.height * 0.5 + y
+            };
+            // 计算点图片变换中心绕双指中心旋转e._rotate度后的坐标，设为点a
+            const a = {
+                x: (origin.x - e._centerX) * Math.cos(e._rotate * Math.PI / 180) - (origin.y - e._centerY) * Math.sin(e._rotate * Math.PI / 180) + e._centerX,
+                y: (origin.x - e._centerX) * Math.sin(e._rotate * Math.PI / 180) + (origin.y - e._centerY) * Math.cos(e._rotate * Math.PI / 180) + e._centerY
+            }
+            // 计算偏移量
+            x -= origin.x - a.x;
+            y -= origin.y - a.y;
+            // 旋转角度
+            rotate = (rotate + e._rotate + 360) % 360;
             rotateImage.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0px) rotate(' + rotate + 'deg)';
         }
     });
